@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-business:contracts:events:event-envelope:v1",
+  "title": "Event Envelope",
+  "description": "The transport-neutral wrapper every platform event is published in. It identifies the occurrence, names the contract governing the payload, records when the fact happened, and carries correlation identifiers. Payload shape is governed by the referenced contract, not by this envelope, so a new event type needs no change here.",
+  "x-contract-version": "0.1.0",
+  "type": "object",
+  "properties": {
+    "event_id": {
+      "type": "string",
+      "title": "Event occurrence identifier",
+      "description": "Identifies this occurrence of the event, not the business object it describes. Two events about the same object have different event_id values. Consumers use it to deduplicate redelivery. Prefix 'evt_' followed by 8 to 64 characters from [A-Za-z0-9_-].",
+      "pattern": "^evt_[A-Za-z0-9_-]{8,64}$",
+      "examples": ["evt_5c1e8a2b7d0f4693"]
+    },
+    "event_type": {
+      "type": "string",
+      "title": "Event type",
+      "description": "The stable, version-governed name of what happened, as dot-separated lowercase segments. Renaming a published event_type is a breaking change. This contract constrains the shape; the owning service allocates the names.",
+      "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*){2,5}$",
+      "examples": ["business.entity.changed", "business.document.published"]
+    },
+    "contract_id": {
+      "type": "string",
+      "title": "Payload contract identifier",
+      "description": "URN of the contract governing 'payload'. Consumers resolve this to know how to read the payload, which is what keeps this envelope independent of any individual event shape.",
+      "pattern": "^urn:ai-business:contracts:[a-z0-9-]+:[a-z0-9-]+:v[0-9]+$",
+      "examples": ["urn:ai-business:contracts:events:entity-changed:v1"]
+    },
+    "contract_version": {
+      "type": "string",
+      "title": "Payload contract version",
+      "description": "The exact released semantic version of the payload contract, so a consumer can distinguish compatible generations within the same major identifier.",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$",
+      "examples": ["1.0.0"]
+    },
+    "producer": {
+      "type": "string",
+      "title": "Producing service",
+      "description": "Which platform service emitted the event. Restricted to the services governance has approved as event producers. Adding a producer is an additive change that requires review, because consumers may match this value exhaustively.",
+      "enum": [
+        "ai-business-api",
+        "ai-business-auth",
+        "ai-business-agent-runtime",
+        "ai-business-channel-gateway"
+      ]
+    },
+    "occurred_at": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Occurrence timestamp",
+      "description": "When the fact occurred, as an RFC 3339 date-time. Must be expressed in UTC with a literal 'Z' offset; local offsets are not accepted. This is the time of the occurrence, not the time of publication or delivery.",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$",
+      "examples": ["2026-08-07T10:00:00Z"]
+    },
+    "request_id": {
+      "$ref": "urn:ai-business:contracts:common:request-metadata:v1#/$defs/request_id"
+    },
+    "correlation_id": {
+      "$ref": "urn:ai-business:contracts:common:request-metadata:v1#/$defs/correlation_id"
+    },
+    "payload": {
+      "type": "object",
+      "title": "Event payload",
+      "description": "The event body, governed by the contract named in 'contract_id'. Open by construction: this envelope deliberately does not constrain payload shape, so payload contracts evolve on their own version line.",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "event_id",
+    "event_type",
+    "contract_id",
+    "contract_version",
+    "producer",
+    "occurred_at",
+    "payload"
+  ],
+  "additionalProperties": true,
+  "examples": [
+    {
+      "event_id": "evt_5c1e8a2b7d0f4693",
+      "event_type": "business.entity.changed",
+      "contract_id": "urn:ai-business:contracts:events:entity-changed:v1",
+      "contract_version": "1.0.0",
+      "producer": "ai-business-api",
+      "occurred_at": "2026-08-07T10:00:00Z",
+      "request_id": "req_8fb2c1d4e5a60719",
+      "correlation_id": "corr_2a7d9e0f1b3c4d5e",
+      "payload": { "entity_ref": "ent_7f3a91c0", "change": "updated" }
+    }
+  ]
+}

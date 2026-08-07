@@ -1,0 +1,9 @@
+{
+  "event_id": "evt_1d2e3f4a5b6c7d80",
+  "event_type": "business.document.published",
+  "contract_id": "urn:ai-business:contracts:events:document-published:v1",
+  "contract_version": "1.0.0",
+  "producer": "ai-business-channel-gateway",
+  "occurred_at": "2026-08-07T10:15:30.250Z",
+  "payload": {}
+}

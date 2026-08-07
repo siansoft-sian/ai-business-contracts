@@ -1,0 +1,9 @@
+{
+  "event_id": "evt_5c1e8a2b7d0f4693",
+  "event_type": "business.entity.changed",
+  "contract_id": "urn:ai-business:contracts:events:entity-changed:v1",
+  "contract_version": "1.0.0",
+  "producer": "ai-business-admin-web",
+  "occurred_at": "2026-08-07T10:00:00Z",
+  "payload": {}
+}

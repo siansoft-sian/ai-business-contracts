@@ -21,6 +21,8 @@ dev = [
     "openapi-spec-validator>=0.7",  # EP-02/EP-05: OpenAPI validation
     "detect-secrets>=1.5",  # EP-05: secret scan (supersedes absent gitleaks)
     "pip-audit>=2.7",       # EP-05: dependency vulnerability audit (supersedes absent trivy)
+    "types-PyYAML>=6.0",    # typing only: mypy strict needs stubs for PyYAML
+    "types-jsonschema>=4.23",  # typing only: mypy strict needs stubs for jsonschema
 ]
 
 [tool.pytest.ini_options]

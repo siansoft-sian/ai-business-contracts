@@ -1,0 +1,133 @@
+# Invalid instance fixtures and the reason each one must be rejected.
+#
+# TEST_PLAN.md Layer B requires that "bad fixtures fail for the intended
+# reason". A fixture that fails for the wrong reason is worse than no fixture:
+# it reports a passing test while leaving the rule it claims to cover untested.
+#
+# So each entry declares the schema, the JSON pointer where the error must
+# surface, and a substring the validator's message must contain. The tests
+# assert all three, not merely that validation failed.
+#
+# These fixtures contain no prohibited construct - only schema-invalid data -
+# so they need no neutralising suffix. They live outside the release surface
+# (scripts/_scope.py), so an invalid example can never ship as a contract
+# example.
+
+fixtures:
+  # --- error-envelope.v1 -----------------------------------------------
+  - file: error-envelope.v1/missing-required-code.json
+    schema: contracts/schemas/common/error-envelope.v1.schema.json
+    at: error
+    expect: "'code' is a required property"
+    reason: error.code is the compatibility key and is mandatory
+
+  - file: error-envelope.v1/lowercase-error-code.json
+    schema: contracts/schemas/common/error-envelope.v1.schema.json
+    at: error/code
+    expect: does not match
+    reason: error codes are UPPER_SNAKE_CASE machine identifiers
+
+  - file: error-envelope.v1/success-true.json
+    schema: contracts/schemas/common/error-envelope.v1.schema.json
+    at: success
+    expect: "False"
+    reason: the error envelope always discriminates as a failure
+
+  - file: error-envelope.v1/unprefixed-request-id.json
+    schema: contracts/schemas/common/error-envelope.v1.schema.json
+    at: request_id
+    expect: does not match
+    reason: identifier format is declared, not conventional - proves the cross-schema $ref is enforced
+
+  - file: error-envelope.v1/details-not-object.json
+    schema: contracts/schemas/common/error-envelope.v1.schema.json
+    at: error/details
+    expect: is not of type 'object'
+    reason: details must be structured, so a client can parse it rather than scrape a string
+
+  # --- request-metadata.v1 ---------------------------------------------
+  - file: request-metadata.v1/missing-request-id.json
+    schema: contracts/schemas/common/request-metadata.v1.schema.json
+    at: "(root)"
+    expect: "'request_id' is a required property"
+    reason: correlation without a request identifier cannot be traced to its origin
+
+  - file: request-metadata.v1/malformed-traceparent.json
+    schema: contracts/schemas/common/request-metadata.v1.schema.json
+    at: traceparent
+    expect: does not match
+    reason: W3C trace-id is 32 hex characters; a short one is not a valid trace context
+
+  - file: request-metadata.v1/correlation-id-wrong-prefix.json
+    schema: contracts/schemas/common/request-metadata.v1.schema.json
+    at: correlation_id
+    expect: does not match
+    reason: request and correlation identifiers are distinct namespaces and must not be interchanged
+
+  # --- event-envelope.v1 -----------------------------------------------
+  - file: event-envelope.v1/unapproved-producer.json
+    schema: contracts/schemas/events/event-envelope.v1.schema.json
+    at: producer
+    expect: is not one of
+    reason: producers are a governance-approved closed set; admin-web consumes events but never emits them
+
+  - file: event-envelope.v1/non-utc-timestamp.json
+    schema: contracts/schemas/events/event-envelope.v1.schema.json
+    at: occurred_at
+    expect: does not match
+    reason: occurred_at must be UTC with a literal Z; a local offset is ambiguous across daylight changes
+
+  - file: event-envelope.v1/missing-payload.json
+    schema: contracts/schemas/events/event-envelope.v1.schema.json
+    at: "(root)"
+    expect: "'payload' is a required property"
+    reason: an event without a payload carries no fact
+
+  - file: event-envelope.v1/single-segment-event-type.json
+    schema: contracts/schemas/events/event-envelope.v1.schema.json
+    at: event_type
+    expect: does not match
+    reason: event_type is a namespaced dotted name, so types cannot collide across domains
+
+  - file: event-envelope.v1/contract-version-not-semver.json
+    schema: contracts/schemas/events/event-envelope.v1.schema.json
+    at: contract_version
+    expect: does not match
+    reason: the payload contract version must be exact, so consumers can distinguish generations
+
+  # --- contract-metadata.v1 (closed schema) ----------------------------
+  - file: contract-metadata.v1/unknown-key.json
+    schema: contracts/schemas/common/contract-metadata.v1.schema.json
+    at: contracts/0
+    expect: was unexpected
+    reason: "'complatibility' is a typo; a closed control-plane schema must reject it rather than ignore it"
+
+  - file: contract-metadata.v1/unknown-owner.json
+    schema: contracts/schemas/common/contract-metadata.v1.schema.json
+    at: contracts/0/owner
+    expect: is not one of
+    reason: ownership is restricted to the frozen eight repositories
+
+  - file: contract-metadata.v1/missing-owner.json
+    schema: contracts/schemas/common/contract-metadata.v1.schema.json
+    at: contracts/0
+    expect: "'owner' is a required property"
+    reason: a contract without an owner is invalid
+
+  - file: contract-metadata.v1/version-not-semver.json
+    schema: contracts/schemas/common/contract-metadata.v1.schema.json
+    at: contracts/0/version
+    expect: does not match
+    reason: catalog versions are full MAJOR.MINOR.PATCH
+
+  - file: contract-metadata.v1/invalid-lifecycle.json
+    schema: contracts/schemas/common/contract-metadata.v1.schema.json
+    at: contracts/0/lifecycle
+    expect: is not one of
+    reason: lifecycle is a closed state machine; 'published' is not one of its states
+
+  - file: contract-metadata.v1/empty-contracts.json
+    schema: contracts/schemas/common/contract-metadata.v1.schema.json
+    at: contracts
+    expect: should be non-empty
+    reason: an empty catalog registers nothing and is almost certainly a generation failure

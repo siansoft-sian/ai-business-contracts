@@ -1,0 +1,13 @@
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_FAILED",
+    "message": "The request could not be validated.",
+    "details": {
+      "field": "occurred_at",
+      "reason": "must be RFC 3339 with a UTC offset"
+    }
+  },
+  "request_id": "req_8fb2c1d4e5a60719",
+  "correlation_id": "corr_2a7d9e0f1b3c4d5e"
+}

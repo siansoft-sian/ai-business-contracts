@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-business:contracts:common:contract-metadata:v1",
+  "title": "Contract Metadata and Catalog",
+  "description": "The control-plane contract: it describes the catalog document that registers every published contract, and the shape of a single catalog entry. Unlike the interface envelopes, this schema is closed - an unrecognised key is a mistake in the catalog, not a forward-compatible addition, and must fail validation rather than be ignored.",
+  "x-contract-version": "0.1.0",
+  "type": "object",
+  "properties": {
+    "catalog_version": {
+      "type": "string",
+      "title": "Catalog document version",
+      "description": "Semantic version of the catalog document itself, distinct from the version of any contract it registers.",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+    },
+    "contracts": {
+      "type": "array",
+      "title": "Registered contracts",
+      "description": "Every published contract. The (contract_id, version) pair must be unique across this array; duplicates are rejected by catalog validation.",
+      "items": { "$ref": "#/$defs/contract_entry" },
+      "minItems": 1
+    }
+  },
+  "required": ["catalog_version", "contracts"],
+  "additionalProperties": false,
+  "$defs": {
+    "repository": {
+      "type": "string",
+      "title": "Platform repository",
+      "description": "One of the eight independently versioned platform repositories. The closed list is deliberate: an owner or consumer outside it means the entry is wrong, or the platform topology changed and this contract must change with it.",
+      "enum": [
+        "ai-business-contracts",
+        "ai-business-database",
+        "ai-business-auth",
+        "ai-business-api",
+        "ai-business-agent-runtime",
+        "ai-business-channel-gateway",
+        "ai-business-admin-web",
+        "ai-business-infrastructure"
+      ]
+    },
+    "semver": {
+      "type": "string",
+      "title": "Semantic version",
+      "description": "MAJOR.MINOR.PATCH with no pre-release or build metadata. Released versions are immutable; a correction is a new version.",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$",
+      "examples": ["0.1.0"]
+    },
+    "contract_entry": {
+      "type": "object",
+      "title": "Catalog entry",
+      "description": "One published contract. Ownership is singular and mandatory: a contract without exactly one owner is invalid.",
+      "properties": {
+        "contract_id": {
+          "type": "string",
+          "title": "Stable contract identifier",
+          "description": "URN that stays constant across compatible versions. The trailing v<major> marks the generation, so incompatible generations coexist under distinct identifiers.",
+          "pattern": "^urn:ai-business:contracts:[a-z0-9-]+:[a-z0-9-]+:v[0-9]+$"
+        },
+        "version": { "$ref": "#/$defs/semver" },
+        "type": {
+          "type": "string",
+          "title": "Contract family",
+          "description": "The artifact family, which determines how the source file is validated.",
+          "enum": ["json-schema", "openapi", "asyncapi"]
+        },
+        "lifecycle": {
+          "type": "string",
+          "title": "Lifecycle state",
+          "description": "draft: not yet consumable. active: published and supported. deprecated: still supported, replacement announced, carries deprecation metadata. retired: no longer supported.",
+          "enum": ["draft", "active", "deprecated", "retired"]
+        },
+        "owner": {
+          "$ref": "#/$defs/repository",
+          "title": "Authoritative owner",
+          "description": "The single repository with authority over this contract's shape, version, and deprecation. Exactly one, always."
+        },
+        "consumers": {
+          "type": "array",
+          "title": "Declared consumers",
+          "description": "Repositories that depend on this contract. Listed explicitly so consumer impact is a fact rather than a guess when a change is proposed. May be empty for a contract nothing consumes yet.",
+          "items": { "$ref": "#/$defs/repository" },
+          "uniqueItems": true
+        },
+        "source": {
+          "type": "string",
+          "title": "Canonical source path",
+          "description": "Repository-relative path to the contract source. Must resolve to a file that exists, so the catalog cannot drift from the tree.",
+          "pattern": "^[A-Za-z0-9._/-]+$",
+          "examples": ["contracts/schemas/common/error-envelope.v1.schema.json"]
+        },
+        "compatibility": {
+          "type": "string",
+          "title": "Compatibility mode",
+          "description": "backward: new versions accept data written for old ones. forward: old versions accept data written for new ones. full: both. none: no guarantee, permitted only for draft contracts.",
+          "enum": ["backward", "forward", "full", "none"]
+        },
+        "description": {
+          "type": "string",
+          "title": "Human-readable summary",
+          "description": "One line describing what the contract governs. Documentation only; not a compatibility key.",
+          "maxLength": 300
+        },
+        "deprecation": {
+          "type": "object",
+          "title": "Deprecation metadata",
+          "description": "Required once lifecycle is deprecated or retired, and meaningless before then. Names the replacement and the earliest retirement date so consumers can plan.",
+          "properties": {
+            "deprecated_at": {
+              "type": "string",
+              "format": "date",
+              "description": "Date the contract entered deprecated state, as an RFC 3339 full-date.",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "replaced_by": {
+              "type": "string",
+              "description": "contract_id of the replacement, or omitted if the capability is withdrawn entirely.",
+              "pattern": "^urn:ai-business:contracts:[a-z0-9-]+:[a-z0-9-]+:v[0-9]+$"
+            },
+            "earliest_retirement": {
+              "type": "string",
+              "format": "date",
+              "description": "Earliest date the contract may move to retired, as an RFC 3339 full-date.",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            }
+          },
+          "required": ["deprecated_at"],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "contract_id",
+        "version",
+        "type",
+        "lifecycle",
+        "owner",
+        "consumers",
+        "source",
+        "compatibility"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "examples": [
+    {
+      "catalog_version": "0.1.0",
+      "contracts": [
+        {
+          "contract_id": "urn:ai-business:contracts:common:error-envelope:v1",
+          "version": "0.1.0",
+          "type": "json-schema",
+          "lifecycle": "active",
+          "owner": "ai-business-contracts",
+          "consumers": ["ai-business-api", "ai-business-auth"],
+          "source": "contracts/schemas/common/error-envelope.v1.schema.json",
+          "compatibility": "backward"
+        }
+      ]
+    }
+  ]
+}

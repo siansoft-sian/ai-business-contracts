@@ -138,11 +138,24 @@ def build_parser(description: str) -> argparse.ArgumentParser:
     return parser
 
 
-def report(check: str, root: Path, violations: list[Violation], as_json: bool) -> int:
+def report(
+    check: str,
+    root: Path,
+    violations: list[Violation],
+    as_json: bool,
+    *,
+    pass_message: str | None = None,
+    fail_noun: str = "prohibited construct",
+) -> int:
     """Print results and return the process exit code.
 
     Returns ``0`` when no violation was found and ``1`` otherwise. The exit
     code is the contract: CI and the local quality gate branch on it.
+
+    ``pass_message`` and ``fail_noun`` let the validators describe what they
+    checked. Boundary scanners find "prohibited constructs"; contract
+    validators find "defects". Sharing the reporting shape keeps every tool's
+    CLI identical while letting each say something true.
     """
     if as_json:
         payload = {
@@ -155,10 +168,11 @@ def report(check: str, root: Path, violations: list[Violation], as_json: bool) -
         }
         print(json.dumps(payload, indent=2, sort_keys=True))
     elif violations:
-        print(f"{check}: FAIL - {len(violations)} prohibited construct(s) found", file=sys.stderr)
+        plural = "" if len(violations) == 1 else "s"
+        print(f"{check}: FAIL - {len(violations)} {fail_noun}{plural} found", file=sys.stderr)
         for violation in violations:
             print(f"  {violation.render()}", file=sys.stderr)
     else:
-        scanned = ", ".join(CONTRACT_BEARING_PATHS)
-        print(f"{check}: PASS - no prohibited constructs in scope ({scanned})")
+        default = f"no prohibited constructs in scope ({', '.join(CONTRACT_BEARING_PATHS)})"
+        print(f"{check}: PASS - {pass_message or default}")
     return 1 if violations else 0

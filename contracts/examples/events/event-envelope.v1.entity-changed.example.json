@@ -1,0 +1,14 @@
+{
+  "event_id": "evt_5c1e8a2b7d0f4693",
+  "event_type": "business.entity.changed",
+  "contract_id": "urn:ai-business:contracts:events:entity-changed:v1",
+  "contract_version": "1.0.0",
+  "producer": "ai-business-api",
+  "occurred_at": "2026-08-07T10:00:00Z",
+  "request_id": "req_8fb2c1d4e5a60719",
+  "correlation_id": "corr_2a7d9e0f1b3c4d5e",
+  "payload": {
+    "entity_ref": "ent_7f3a91c0",
+    "change": "updated"
+  }
+}

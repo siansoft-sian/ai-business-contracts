@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-business:contracts:common:error-envelope:v1",
+  "title": "Error Envelope",
+  "description": "The uniform failure response shape for every platform interface. It carries a stable machine-readable code, a message safe to show a client, optional structured detail, and the correlation identifiers needed to find the failure in observability data. It never carries stack traces, provider error payloads, credentials, or connection information.",
+  "x-contract-version": "0.1.0",
+  "type": "object",
+  "properties": {
+    "success": {
+      "type": "boolean",
+      "const": false,
+      "title": "Success discriminator",
+      "description": "Always false. Present so a client can discriminate success from failure without inspecting a transport status code."
+    },
+    "error": { "$ref": "#/$defs/error" },
+    "request_id": {
+      "$ref": "urn:ai-business:contracts:common:request-metadata:v1#/$defs/request_id"
+    },
+    "correlation_id": {
+      "$ref": "urn:ai-business:contracts:common:request-metadata:v1#/$defs/correlation_id"
+    }
+  },
+  "required": ["success", "error", "request_id"],
+  "additionalProperties": true,
+  "$defs": {
+    "error": {
+      "type": "object",
+      "title": "Error body",
+      "description": "The machine-readable failure. 'code' is the compatibility-sensitive key; 'message' is for humans and may be reworded at any time.",
+      "properties": {
+        "code": {
+          "type": "string",
+          "title": "Stable error code",
+          "description": "The compatibility key. Consumers branch on this value, so changing or removing a published code is a breaking change. UPPER_SNAKE_CASE, 3 to 64 characters, beginning with a letter. Codes are allocated by the service that owns the interface; this contract constrains their shape, not their meaning.",
+          "pattern": "^[A-Z][A-Z0-9_]{2,63}$",
+          "examples": ["VALIDATION_FAILED", "RESOURCE_NOT_FOUND", "RATE_LIMIT_EXCEEDED"]
+        },
+        "message": {
+          "type": "string",
+          "title": "Client-safe message",
+          "description": "A human-readable explanation safe to display. NOT a compatibility key: wording may change within a patch release and consumers must not parse or branch on it. Must not embed internal diagnostics, credentials, or personal data.",
+          "minLength": 1,
+          "maxLength": 1024,
+          "examples": ["The request could not be validated."]
+        },
+        "details": {
+          "type": "object",
+          "title": "Structured detail",
+          "description": "Optional structured, client-safe supplementary detail, such as which fields failed validation. Deliberately open so a service may add detail without a contract change; every value placed here must be safe to expose.",
+          "additionalProperties": true,
+          "examples": [{ "field": "occurred_at", "reason": "must be RFC 3339 with a UTC offset" }]
+        }
+      },
+      "required": ["code", "message"],
+      "additionalProperties": true
+    }
+  },
+  "examples": [
+    {
+      "success": false,
+      "error": {
+        "code": "VALIDATION_FAILED",
+        "message": "The request could not be validated.",
+        "details": { "field": "occurred_at", "reason": "must be RFC 3339 with a UTC offset" }
+      },
+      "request_id": "req_8fb2c1d4e5a60719",
+      "correlation_id": "corr_2a7d9e0f1b3c4d5e"
+    }
+  ]
+}

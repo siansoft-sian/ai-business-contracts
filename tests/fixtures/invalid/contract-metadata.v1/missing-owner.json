@@ -1,0 +1,14 @@
+{
+  "catalog_version": "0.1.0",
+  "contracts": [
+    {
+      "contract_id": "urn:ai-business:contracts:common:error-envelope:v1",
+      "version": "0.1.0",
+      "type": "json-schema",
+      "lifecycle": "active",
+      "consumers": ["ai-business-api"],
+      "source": "contracts/schemas/common/error-envelope.v1.schema.json",
+      "compatibility": "backward"
+    }
+  ]
+}

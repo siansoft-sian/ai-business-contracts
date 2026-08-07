@@ -1,0 +1,6 @@
+{
+  "request_id": "req_8fb2c1d4e5a60719",
+  "correlation_id": "corr_2a7d9e0f1b3c4d5e",
+  "traceparent": "00-4bf92f3577b34da6a3ce929d0e0e4736-00f067aa0ba902b7-01",
+  "tracestate": "ai-business=00f067aa0ba902b7"
+}

@@ -1,0 +1,32 @@
+{
+  "catalog_version": "0.1.0",
+  "contracts": [
+    {
+      "contract_id": "urn:ai-business:contracts:common:error-envelope:v1",
+      "version": "0.1.0",
+      "type": "json-schema",
+      "lifecycle": "active",
+      "owner": "ai-business-contracts",
+      "consumers": ["ai-business-api", "ai-business-auth"],
+      "source": "contracts/schemas/common/error-envelope.v1.schema.json",
+      "compatibility": "backward",
+      "description": "Uniform failure response shape."
+    },
+    {
+      "contract_id": "urn:ai-business:contracts:events:legacy-notice:v1",
+      "version": "0.1.0",
+      "type": "json-schema",
+      "lifecycle": "deprecated",
+      "owner": "ai-business-contracts",
+      "consumers": [],
+      "source": "contracts/schemas/events/legacy-notice.v1.schema.json",
+      "compatibility": "backward",
+      "description": "Illustrates deprecation metadata on a superseded contract.",
+      "deprecation": {
+        "deprecated_at": "2026-08-01",
+        "replaced_by": "urn:ai-business:contracts:events:event-envelope:v1",
+        "earliest_retirement": "2027-02-01"
+      }
+    }
+  ]
+}

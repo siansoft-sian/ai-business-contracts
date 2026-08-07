@@ -1,0 +1,76 @@
+# Contract catalog for ai-business-contracts.
+#
+# Validated against urn:ai-business:contracts:common:contract-metadata:v1 by
+# scripts/validate_catalog.py. The schema is closed, so an unrecognised key
+# here fails validation rather than being silently ignored.
+#
+# Every entry has exactly one owner. Consumers are declared per contract so
+# that consumer impact is a fact at change time, not a guess.
+catalog_version: "0.1.0"
+
+contracts:
+  - contract_id: urn:ai-business:contracts:common:error-envelope:v1
+    version: "0.1.0"
+    type: json-schema
+    lifecycle: active
+    owner: ai-business-contracts
+    # Every service that can return a failure to a caller. admin-web consumes
+    # it to render errors; infrastructure and database do not sit on a
+    # request/response boundary that returns this envelope.
+    consumers:
+      - ai-business-api
+      - ai-business-auth
+      - ai-business-agent-runtime
+      - ai-business-channel-gateway
+      - ai-business-admin-web
+    source: contracts/schemas/common/error-envelope.v1.schema.json
+    compatibility: backward
+    description: Uniform failure response with a stable machine-readable code and correlation identifiers.
+
+  - contract_id: urn:ai-business:contracts:common:request-metadata:v1
+    version: "0.1.0"
+    type: json-schema
+    lifecycle: active
+    owner: ai-business-contracts
+    # Identifier semantics are referenced by the other envelopes, so every
+    # service that propagates correlation across a boundary depends on it.
+    consumers:
+      - ai-business-api
+      - ai-business-auth
+      - ai-business-agent-runtime
+      - ai-business-channel-gateway
+      - ai-business-admin-web
+    source: contracts/schemas/common/request-metadata.v1.schema.json
+    compatibility: backward
+    description: Request and correlation identifiers, with optional W3C trace context, for observability only.
+
+  - contract_id: urn:ai-business:contracts:events:event-envelope:v1
+    version: "0.1.0"
+    type: json-schema
+    lifecycle: active
+    owner: ai-business-contracts
+    # The four approved producers, plus admin-web which reads events but never
+    # emits them. Producer membership is constrained by the schema enum.
+    consumers:
+      - ai-business-api
+      - ai-business-auth
+      - ai-business-agent-runtime
+      - ai-business-channel-gateway
+      - ai-business-admin-web
+    source: contracts/schemas/events/event-envelope.v1.schema.json
+    compatibility: backward
+    description: Transport-neutral wrapper identifying an event occurrence and the contract governing its payload.
+
+  - contract_id: urn:ai-business:contracts:common:contract-metadata:v1
+    version: "0.1.0"
+    type: json-schema
+    lifecycle: active
+    owner: ai-business-contracts
+    # Control-plane contract. Consumed by any repository that verifies a
+    # contracts release in CI, which at M0 means the release tooling here and
+    # the platform compatibility gate. No runtime service reads it.
+    consumers:
+      - ai-business-contracts
+    source: contracts/schemas/common/contract-metadata.v1.schema.json
+    compatibility: backward
+    description: Catalog document and catalog entry shape, including ownership, lifecycle, and compatibility mode.
