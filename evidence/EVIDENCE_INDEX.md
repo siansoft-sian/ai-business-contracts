@@ -7,7 +7,7 @@ All evidence files are templates until commands are actually executed in the tar
 | `01-preflight.md` | starting repository state and conflict inventory | COMPLETE (inventory) — Run 1 @ `m0-ep00-baseline`, Run 2 @ `a29b4be`, Run 3 @ `f15a44c` |
 | `02-boundary.md` | no-implementation/no-multitenancy enforcement | COMPLETE (enforced) — EP-01 @ `f8f0d38`; M0-CON-002 NOT RUN |
 | `03-contract-validation.md` | schemas, examples, refs, catalog | COMPLETE (validated) — EP-02 @ `db08b46`; clean-checkout verified |
-| `04-compatibility.md` | compatible/breaking/review-required fixtures | NOT RUN |
+| `04-compatibility.md` | compatible/breaking/review-required fixtures | COMPLETE (engine tested) — EP-03 @ `d65cd87`; M0-CON-023/042 NOT RUN |
 | `05-quality-security.md` | local gate, CI, security/dependency scans | NOT RUN |
 | `06-release-artifacts.md` | bundle/manifest/checksums/reproducibility | NOT RUN |
 | `07-cross-repo-readiness.md` | platform matrix and consumer pinning | NOT RUN |
