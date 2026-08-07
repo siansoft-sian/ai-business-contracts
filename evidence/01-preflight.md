@@ -311,9 +311,37 @@ $ git ls-remote --heads --tags origin
 
 `origin/main` still resolves **locally** to `f15a44c` — a stale remote-tracking ref proving a fetch or push succeeded at some earlier point. It is not evidence that the remote is reachable now.
 
-**Cause is indeterminate and is not guessed here.** GitHub returns `Repository not found` both for a deleted/renamed repository and for a private repository accessed without credentials. This session is non-interactive and the claude.ai GitHub connector is unauthenticated, so the two cannot be distinguished. `gh` is installed (§D.6) but was deliberately not used to probe: the recorded decision for this run was to state the ambiguity rather than resolve it.
+At the time Run 3's Section D was written the cause was recorded as indeterminate, because GitHub returns `Repository not found` both for a deleted/renamed repository and for a private one accessed without credentials. **§D.2.1 resolves that ambiguity.**
 
 **Consequence.** Run 2 closed finding 6 on the basis that `m0-ep00-baseline` was published to `origin`, making §4's hash table reproducible by an auditor from a fresh clone. That reproducibility cannot currently be demonstrated. **Finding 6 is reopened** (§7). The §4 table remains internally verifiable from the local object store — §4.1 and §D.7 both reproduce it — but *local* verification is weaker than the fresh-clone property Run 2 claimed.
+
+### D.2.1 Finding 6 diagnosis — cause identified
+
+Executed `2026-08-07T17:46:03Z`, after Section D was first written, as a targeted read-only diagnosis. No remote mutation was attempted.
+
+```bash
+$ gh auth status
+$ gh api users/siansoft-sian --jq '{login,type}'
+$ gh api repos/siansoft-sian/ai-business-contracts
+$ gh repo view siansoft-sian/ai-business-contracts --json name,visibility,isPrivate,pushedAt
+$ gh repo list siansoft-sian --limit 100 --json name,visibility,updatedAt
+$ git reflog show refs/remotes/origin/main
+```
+
+| Command | Exit | Result |
+|---|---:|---|
+| `gh auth status` | `1` | Active account **`siansoft-sian`**, token scopes `gist, read:org, repo, workflow`. (Exit `1` is caused by a second, unrelated stale entry for account `siansoft` whose keyring token is invalid; the active account authenticated successfully.) |
+| `gh api users/siansoft-sian` | `0` | `{"login":"siansoft-sian","type":"User"}` — the namespace owner is the authenticated account itself |
+| `gh api repos/siansoft-sian/ai-business-contracts` | `0` | `{"message":"Not Found","status":"404"}` |
+| `gh repo view …` | `1` | `GraphQL: Could not resolve to a Repository with the name 'siansoft-sian/ai-business-contracts'` |
+| `gh repo list siansoft-sian --limit 100` | `0` | **10 repositories, public and private; none named `ai-business-contracts`, and none with an `ai-business-*` prefix** |
+| `git reflog show refs/remotes/origin/main` | `0` | `f15a44c … update by push` / `a29b4be … update by push` |
+
+**Cause: the remote repository no longer exists.** The 404 is returned to the **owning account itself**, holding `repo` scope — which grants access to that account's private repositories. Private-without-credentials is therefore excluded as an explanation. The complete 100-limit repository listing for the namespace contains no candidate under a different name, which also excludes an in-namespace rename.
+
+**The repository did exist.** The remote-tracking reflog records **two successful pushes** — `a29b4be` (Run 1 output) and `f15a44c` (Run 2 output), both `update by push`. Run 2's §C.1 observation was therefore accurate when written; the remote has been deleted, or transferred out of the namespace, at some point after Run 2 and before `2026-08-07T17:22:38Z` (Run 3's first `ls-remote`, §D.2).
+
+**Remediation — not performed.** Restoring auditor reproducibility requires recreating the remote and pushing `main` plus the `m0-ep00-baseline` tag (still present locally at `13afef1`). That writes to an external service and is outside EP-00's observe-only scope, so it is reported rather than executed. Finding 6 stays **open** until a remote holding `m0-ep00-baseline` at `13afef142f24b1bca5a5979cc7aaefc20d284ce0` is reachable.
 
 ### D.3 Inventory (instruction 2)
 
@@ -743,7 +771,7 @@ This is recorded so a temporary implementation convenience cannot harden into th
 3. Repository `README.md` must be authored — the seeded pack `README.md` was excluded as pack-specific and is still present untracked at Run 3 (§D.1). Note `M0-CON-001` names the README as evidence, so this blocks that criterion.
 4. `M0-CON-001..005` require scanners and mutation tests before any `PASS` claim.
 5. AsyncAPI validator fidelity must be upgraded before the first AsyncAPI contract becomes active (§5.1).
-6. **REOPENED at Run 3.** Run 2 closed this on the basis that `m0-ep00-baseline` was published to `origin`, making §4's hash table reproducible from a fresh clone. `git ls-remote origin` now exits `128` with `Repository not found` (§D.2), so that property cannot currently be demonstrated. Cause is indeterminate — deleted, renamed, or private-without-credentials are indistinguishable from the error. **Action required before delivery:** confirm the remote's true state and re-publish `m0-ep00-baseline` if needed. `M0-CON-043` expects evidence an auditor can reproduce; a local-only anchor is weaker than what Run 2 claimed.
+6. **REOPENED at Run 3; cause since identified — remains OPEN.** Run 2 closed this on the basis that `m0-ep00-baseline` was published to `origin`, making §4's hash table reproducible from a fresh clone. `git ls-remote origin` exits `128` with `Repository not found` (§D.2). The diagnosis in **§D.2.1** establishes the cause: the remote **no longer exists**. A 404 is returned to the owning account `siansoft-sian` itself holding `repo` scope, and the namespace's full 100-limit listing contains no renamed candidate — excluding both private-without-credentials and in-namespace rename. The remote-tracking reflog proves two pushes did land (`a29b4be`, `f15a44c`), so Run 2's claim was accurate when written; the repository was deleted or transferred afterwards. **Action required before delivery, and it writes to an external service so it is not performed here:** recreate the remote and push `main` plus the local `m0-ep00-baseline` tag (`13afef14…`). `M0-CON-043` expects evidence an auditor can reproduce; a local-only anchor is weaker than what Run 2 claimed.
 
 **Carried to EP-05 (recorded so they are not lost):**
 
