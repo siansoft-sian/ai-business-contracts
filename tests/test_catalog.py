@@ -27,6 +27,7 @@ EXPECTED_CONTRACT_IDS = {
     "urn:ai-business:contracts:common:request-metadata:v1",
     "urn:ai-business:contracts:common:contract-metadata:v1",
     "urn:ai-business:contracts:events:event-envelope:v1",
+    "urn:ai-business:contracts:common:compatibility-result:v1",
 }
 
 

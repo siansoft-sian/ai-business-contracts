@@ -1,0 +1,18 @@
+{
+  "baseline": "0.1.0",
+  "candidate": "0.2.0",
+  "result": "fail",
+  "breaking": [
+    {
+      "contract_id": "urn:ai-business:contracts:common:error-envelope:v1",
+      "change": "pattern-changed",
+      "location": "#/properties/request_id",
+      "detail": "pattern tightened; a value the baseline declares valid is now rejected",
+      "witness": "req_8fb2c1d4e5a60719"
+    }
+  ],
+  "review_required": [],
+  "compatible": [],
+  "approved_major_transition": false,
+  "checked_at_utc": "2026-08-07T19:00:00Z"
+}

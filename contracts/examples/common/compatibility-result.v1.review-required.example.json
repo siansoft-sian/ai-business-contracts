@@ -1,0 +1,17 @@
+{
+  "baseline": "0.1.0",
+  "candidate": "0.2.0",
+  "result": "review_required",
+  "breaking": [],
+  "review_required": [
+    {
+      "contract_id": "urn:ai-business:contracts:events:event-envelope:v1",
+      "change": "enum-value-added",
+      "location": "#/properties/producer",
+      "detail": "an allowed value was added. Additive, but a consumer matching this field exhaustively has no branch for it, so the owner must confirm no such consumer exists."
+    }
+  ],
+  "compatible": [],
+  "approved_major_transition": false,
+  "checked_at_utc": "2026-08-07T19:00:00Z"
+}

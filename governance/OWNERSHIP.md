@@ -1,8 +1,9 @@
 # Contract Ownership & Authority Map
 
-**Status:** authoritative for repository boundaries at EP-01. Catalog-level
-owner enforcement arrives with `catalog/contract-catalog.yaml` (EP-02) and the
-platform matrix (EP-04).
+**Status:** authoritative for repository boundaries. Catalog-level owner
+enforcement is live: `catalog/contract-catalog.yaml` registers one owner per
+contract and `scripts/validate_catalog.py` rejects any other arrangement. The
+platform matrix is an EP-04 deliverable.
 
 ## Rule
 
@@ -73,5 +74,7 @@ This repository must never become a shared runtime library.
 | No foreign implementation on the release surface | `scripts/check_no_implementation_code.py` + mutation tests |
 | No SQL/PgBouncer/Sqitch anywhere in this repository | same scanner, file-family family (repository-wide) |
 | No multi-tenant constructs | `scripts/check_no_multitenancy.py` + mutation tests |
-| Exactly one owner per contract | catalog validation (EP-02) |
+| Exactly one owner per contract | `scripts/validate_catalog.py` + catalog tests |
+| A contract on disk but unregistered | catalog/tree agreement check |
+| A breaking change without a major bump | `scripts/check_compatibility.py` |
 | Owner review before merge | `CODEOWNERS` |

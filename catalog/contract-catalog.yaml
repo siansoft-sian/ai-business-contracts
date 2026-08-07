@@ -74,3 +74,18 @@ contracts:
     source: contracts/schemas/common/contract-metadata.v1.schema.json
     compatibility: backward
     description: Catalog document and catalog entry shape, including ownership, lifecycle, and compatibility mode.
+
+  - contract_id: urn:ai-business:contracts:common:compatibility-result:v1
+    version: "0.1.0"
+    type: json-schema
+    lifecycle: active
+    owner: ai-business-contracts
+    # Consumed by whatever reads a release's compatibility summary. At M0 that
+    # is this repository's release tooling and the platform M0 gate; the gate
+    # is operated across repositories rather than owned by one, so no runtime
+    # service is listed as a consumer.
+    consumers:
+      - ai-business-contracts
+    source: contracts/schemas/common/compatibility-result.v1.schema.json
+    compatibility: backward
+    description: Machine-readable compatibility verdict classifying every change as breaking, review-required, or compatible.

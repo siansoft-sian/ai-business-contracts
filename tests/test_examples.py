@@ -49,7 +49,13 @@ def test_committed_examples_validate() -> None:
 def test_examples_exist_for_every_contract() -> None:
     """Every foundation schema ships at least one worked example."""
     covered = {p.name.split(".")[0] for p in example_paths(REPO_ROOT)}
-    assert covered == {"error-envelope", "request-metadata", "contract-metadata", "event-envelope"}
+    assert covered == {
+        "error-envelope",
+        "request-metadata",
+        "contract-metadata",
+        "event-envelope",
+        "compatibility-result",
+    }
 
 
 def test_examples_contain_no_realistic_personal_data() -> None:

@@ -1,6 +1,9 @@
 # Contract Policy
 
-**Status:** skeleton at EP-01. EP-02 and EP-03 complete the normative detail.
+**Status:** complete. The foundation primitives are defined in
+`contracts/schemas/`, registered in `catalog/contract-catalog.yaml`, and
+governed by `VERSIONING.md`, `CHANGE_PROCESS.md`, `DEPRECATION.md`, and
+`RELEASES.md`.
 
 ## What is a contract
 
@@ -56,8 +59,13 @@ tenant-scoped storage.
 Both prohibitions are machine-enforced on the release surface - see
 `OWNERSHIP.md`, "Enforcement".
 
-## To be completed in EP-02/EP-03
+## Where the rules live
 
-- the four foundation primitives and their fixtures;
-- catalog schema and validation rules;
-- compatibility classification detail.
+| Question | Document |
+|---|---|
+| What version does this change require? | `VERSIONING.md` |
+| How does a change get reviewed and released? | `CHANGE_PROCESS.md` |
+| How is a contract withdrawn? | `DEPRECATION.md` |
+| What does a release contain, and what is immutable? | `RELEASES.md` |
+| Who owns and consumes each contract? | `OWNERSHIP.md`, `catalog/contract-catalog.yaml` |
+| How is a change classified? | `compatibility/policy.md` |

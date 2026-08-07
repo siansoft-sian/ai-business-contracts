@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-business:contracts:common:compatibility-result:v1",
+  "title": "Compatibility Result",
+  "description": "The machine-readable verdict produced when a candidate contract set is compared against a baseline. Published as the compatibility summary a release carries, so the platform gate can decide without re-deriving the comparison. Findings are grouped by what can be proven: breaking changes are demonstrated, review-required changes are those that cannot be shown safe, and compatible changes are proven harmless.",
+  "x-contract-version": "0.1.0",
+  "type": "object",
+  "properties": {
+    "baseline": {
+      "type": ["string", "null"],
+      "title": "Baseline reference",
+      "description": "The released version or ref the candidate was compared against. Null when no prior release exists, in which case 'result' is 'no-baseline' and no comparison was performed."
+    },
+    "candidate": {
+      "type": "string",
+      "title": "Candidate reference",
+      "description": "The version or ref being evaluated."
+    },
+    "result": {
+      "type": "string",
+      "title": "Verdict",
+      "description": "pass: no breaking finding, or every breaking finding is covered by an approved major-version transition. fail: at least one unapproved breaking finding. review_required: no breaking finding, but at least one change that cannot be shown safe. no-baseline: nothing to compare against; the engine was not exercised and this must not be read as a compatibility guarantee.",
+      "enum": ["pass", "fail", "review_required", "no-baseline"]
+    },
+    "breaking": {
+      "type": "array",
+      "title": "Breaking findings",
+      "description": "Changes demonstrated to reject data or usage that the baseline accepted. A non-empty list fails the gate unless 'approved_major_transition' is true.",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "review_required": {
+      "type": "array",
+      "title": "Review-required findings",
+      "description": "Changes that are additive or undecidable, and therefore cannot be shown safe. Enum expansion and new variants belong here: they are additive yet can break a consumer that matches exhaustively. These block automatic approval until the contract owner records a decision.",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "compatible": {
+      "type": "array",
+      "title": "Compatible findings",
+      "description": "Changes proven not to affect existing consumers.",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "approved_major_transition": {
+      "type": "boolean",
+      "title": "Major transition approved",
+      "description": "Whether every breaking finding is covered by a MAJOR version increase on its contract. When true, breaking findings remain listed but do not fail the gate: they were declared, not hidden."
+    },
+    "checked_at_utc": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Check timestamp",
+      "description": "When the comparison ran, as an RFC 3339 date-time in UTC with a literal 'Z' offset.",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$"
+    }
+  },
+  "required": ["baseline", "candidate", "result", "breaking", "review_required", "compatible", "checked_at_utc"],
+  "additionalProperties": true,
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "title": "Finding",
+      "description": "One classified difference between baseline and candidate.",
+      "properties": {
+        "contract_id": {
+          "type": "string",
+          "title": "Affected contract",
+          "description": "URN of the contract the change was found in.",
+          "pattern": "^urn:ai-business:contracts:[a-z0-9-]+:[a-z0-9-]+:v[0-9]+$"
+        },
+        "change": {
+          "type": "string",
+          "title": "Change class",
+          "description": "The kind of difference detected. A stable identifier consumers and the platform gate may branch on.",
+          "enum": [
+            "contract-removed",
+            "contract-added",
+            "field-removed",
+            "field-added-optional",
+            "field-added-required",
+            "field-renamed",
+            "type-changed",
+            "optional-became-required",
+            "enum-value-removed",
+            "enum-value-added",
+            "range-narrowed",
+            "pattern-changed",
+            "extensible-became-closed",
+            "documentation-only",
+            "unresolvable-reference",
+            "duplicate-contract-version",
+            "released-version-content-changed"
+          ]
+        },
+        "location": {
+          "type": "string",
+          "title": "Location",
+          "description": "JSON pointer to the affected node within the contract, or '#' for a whole-contract change."
+        },
+        "detail": {
+          "type": "string",
+          "title": "Explanation",
+          "description": "Human-readable account of the difference. Not a compatibility key."
+        },
+        "witness": {
+          "type": "string",
+          "title": "Proof value",
+          "description": "A value the baseline accepted and the candidate rejects. Present when a finding was proven by counter-example rather than by structure, which is how an undecidable change such as a regex tightening earns a breaking verdict instead of review_required."
+        }
+      },
+      "required": ["contract_id", "change", "location", "detail"],
+      "additionalProperties": true
+    }
+  },
+  "examples": [
+    {
+      "baseline": "0.1.0",
+      "candidate": "0.2.0",
+      "result": "pass",
+      "breaking": [],
+      "review_required": [],
+      "compatible": [
+        {
+          "contract_id": "urn:ai-business:contracts:common:error-envelope:v1",
+          "change": "field-added-optional",
+          "location": "#/properties/retry_after_seconds",
+          "detail": "optional property added; existing consumers are unaffected"
+        }
+      ],
+      "approved_major_transition": false,
+      "checked_at_utc": "2026-08-07T10:00:00Z"
+    }
+  ]
+}

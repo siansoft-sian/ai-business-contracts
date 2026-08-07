@@ -1,0 +1,21 @@
+# Declared compatibility baseline for ai-business-contracts.
+#
+# EP-03 instruction 7: "if no prior release exists, prove the checker using
+# curated fixtures and mark the first published baseline explicitly."
+#
+# No release has been published yet, so there is nothing to compare a candidate
+# against. scripts/check_compatibility.py reads this file and reports the
+# verdict "no-baseline" rather than "pass" - a pass would read as "compared and
+# found compatible", which would be false and is exactly the silent-success
+# failure mode CROSS_REPO_COMPATIBILITY.md requires the gate to avoid.
+#
+# The engine is proven instead by the curated fixtures under
+# compatibility/fixtures/, which exercise every mandatory case in TEST_PLAN.md
+# Layer D in both directions.
+#
+# When 0.1.0 is published, set baseline_release to "0.1.0". From that point
+# every candidate is compared against the released artifact, and the immutable
+# release rule means a published version's content can never change.
+
+baseline_release: null
+first_published_baseline: "0.1.0"

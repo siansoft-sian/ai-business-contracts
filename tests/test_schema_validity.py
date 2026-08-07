@@ -24,9 +24,13 @@ from conftest import REPO_ROOT
 _URN = "urn:ai-business:contracts"
 
 #: source path -> the $id it must declare.
+#:
+#: The four EP-02 primitives plus compatibility-result, added by EP-03 so the
+#: platform gate validates the summary it consumes rather than trusting the
+#: shape our tooling happens to emit.
 FOUNDATION_SCHEMAS = {
     f"contracts/schemas/common/{name}.v1.schema.json": f"{_URN}:common:{name}:v1"
-    for name in ("error-envelope", "request-metadata", "contract-metadata")
+    for name in ("error-envelope", "request-metadata", "contract-metadata", "compatibility-result")
 } | {
     "contracts/schemas/events/event-envelope.v1.schema.json": f"{_URN}:events:event-envelope:v1",
 }
@@ -55,8 +59,8 @@ def test_repository_schemas_are_valid() -> None:
     assert validate_contracts.main([]) == 0
 
 
-def test_all_four_foundation_schemas_exist() -> None:
-    """EP-02 requires exactly these four primitives."""
+def test_all_foundation_schemas_exist() -> None:
+    """The declared contract set and the tree agree exactly."""
     present = {p.relative_to(REPO_ROOT).as_posix() for p in schema_paths(REPO_ROOT)}
     assert present == set(FOUNDATION_SCHEMAS)
 
@@ -95,6 +99,7 @@ def test_additional_properties_policy_is_explicit_and_intentional() -> None:
     assert policy("contracts/schemas/common/error-envelope.v1.schema.json") is True
     assert policy("contracts/schemas/common/request-metadata.v1.schema.json") is True
     assert policy("contracts/schemas/events/event-envelope.v1.schema.json") is True
+    assert policy("contracts/schemas/common/compatibility-result.v1.schema.json") is True
     assert policy("contracts/schemas/common/contract-metadata.v1.schema.json") is False
 
 
