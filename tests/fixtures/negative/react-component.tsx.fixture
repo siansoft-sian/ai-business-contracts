@@ -1,0 +1,7 @@
+// Injected boundary violation: React owned by ai-business-admin-web.
+import { useState } from 'react';
+
+export function ContractList() {
+  const [contracts, setContracts] = useState<string[]>([]);
+  return <ul>{contracts.map((c) => <li key={c}>{c}</li>)}</ul>;
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-business:contracts:common:injected-violation:v1",
+  "title": "Injected multi-tenancy violation",
+  "type": "object",
+  "properties": {
+    "tenant_id": {
+      "type": "string",
+      "description": "Prohibited tenant identifier - the platform is not multi-tenant."
+    },
+    "request_id": { "type": "string" }
+  },
+  "required": ["tenant_id"]
+}

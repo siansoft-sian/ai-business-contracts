@@ -1,0 +1,4 @@
+# Injected boundary violation: Terraform owned by ai-business-infrastructure.
+resource "aws_s3_bucket" "contract_bundles" {
+  bucket = "ai-business-contract-bundles"
+}

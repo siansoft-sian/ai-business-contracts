@@ -1,0 +1,41 @@
+[project]
+name = "ai-business-contracts"
+version = "0.1.0"
+description = "Platform contract foundation and governance for the AI Business Platform. Contracts only."
+requires-python = ">=3.11"
+# Intentionally empty. This project is NOT a runtime package and must never be
+# imported by another repository: HARNESS.md section 3.2 forbids creating a
+# shared runtime library. Consumers pin a released contract bundle by version
+# and integrity hash (CONTRACT_STANDARD.md section 9), not by dependency.
+dependencies = []
+
+[dependency-groups]
+# Validation tooling only. These support linting, validating, and releasing
+# contract source; none of them ships in a release bundle.
+dev = [
+    "pytest>=8.0",          # EP-01 onward: scanner and mutation tests
+    "ruff>=0.6",            # EP-05: lint
+    "mypy>=1.11",           # EP-05: static typing
+    "jsonschema>=4.23",     # EP-02: JSON Schema validation
+    "PyYAML>=6.0",          # EP-02: catalog parsing
+    "openapi-spec-validator>=0.7",  # EP-02/EP-05: OpenAPI validation
+    "detect-secrets>=1.5",  # EP-05: secret scan (supersedes absent gitleaks)
+    "pip-audit>=2.7",       # EP-05: dependency vulnerability audit (supersedes absent trivy)
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["scripts", "tests"]
+addopts = "-ra --strict-markers"
+
+[tool.ruff]
+line-length = 110
+src = ["scripts", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["scripts", "tests"]

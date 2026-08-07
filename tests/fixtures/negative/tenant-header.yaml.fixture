@@ -1,0 +1,8 @@
+# Injected multi-tenancy violation: tenant-scoped request header and routing.
+headers:
+  X-Tenant-Id:
+    description: Prohibited tenant-specific request header.
+    schema:
+      type: string
+routing:
+  strategy: tenant-routing

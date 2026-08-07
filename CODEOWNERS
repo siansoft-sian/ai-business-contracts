@@ -1,0 +1,28 @@
+# Contract ownership for ai-business-contracts.
+#
+# ACCEPTANCE_CRITERIA.md M0-CON-015 requires every catalog contract to have
+# exactly one authoritative owner. This file is the review-time counterpart:
+# it makes the owner's approval mechanically required before a contract change
+# can merge. A contract without an owner is invalid.
+#
+# Cross-repository note: entries here name reviewers for CHANGES MADE IN THIS
+# REPOSITORY. They do not transfer contract authority. Database, auth, agent
+# runtime, channel, admin web, and infrastructure contracts remain owned by
+# their repositories - see governance/OWNERSHIP.md.
+
+# Default owner for everything not matched below.
+*                       @siansoft-sian
+
+# Contract source. Changes here are consumer-visible and require owner review
+# plus a passing compatibility check (governance/CHANGE_PROCESS.md).
+/contracts/             @siansoft-sian
+/catalog/               @siansoft-sian
+/compatibility/         @siansoft-sian
+/templates/             @siansoft-sian
+
+# Governance and boundary enforcement. Weakening a gate requires explicit
+# review; HARNESS.md section 7 forbids obtaining green CI by loosening one.
+/governance/            @siansoft-sian
+/scripts/               @siansoft-sian
+/tests/                 @siansoft-sian
+/.github/               @siansoft-sian

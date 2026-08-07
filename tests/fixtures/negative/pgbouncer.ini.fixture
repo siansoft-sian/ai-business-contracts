@@ -1,0 +1,7 @@
+; Injected boundary violation: PgBouncer owned by ai-business-database.
+[databases]
+ai_business = host=127.0.0.1 port=5432 dbname=ai_business
+
+[pgbouncer]
+pool_mode = transaction
+max_client_conn = 100

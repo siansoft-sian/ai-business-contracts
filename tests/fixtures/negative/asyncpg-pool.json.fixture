@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-business:contracts:common:injected-coupling:v1",
+  "title": "Injected prohibited coupling",
+  "description": "Exposes an asyncpg pool through PgBouncer - implementation, not interface.",
+  "type": "object",
+  "properties": {
+    "pool": { "type": "string", "description": "asyncpg connection pool handle" }
+  }
+}

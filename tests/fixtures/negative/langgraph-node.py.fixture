@@ -1,0 +1,9 @@
+"""Injected boundary violation: LangGraph owned by ai-business-agent-runtime."""
+
+from langgraph.graph import StateGraph
+
+
+def build_graph() -> StateGraph:
+    graph = StateGraph(dict)
+    graph.add_node("plan", lambda state: state)
+    return graph

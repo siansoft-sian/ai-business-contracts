@@ -1,0 +1,10 @@
+-- Injected boundary violation: SQL owned by ai-business-database.
+CREATE TABLE contract_registry (
+    id BIGSERIAL PRIMARY KEY,
+    contract_id TEXT NOT NULL
+);
+
+CREATE OR REPLACE FUNCTION fn_register_contract(p_contract_id TEXT)
+RETURNS BIGINT AS $$
+    INSERT INTO contract_registry (contract_id) VALUES (p_contract_id) RETURNING id;
+$$ LANGUAGE sql;

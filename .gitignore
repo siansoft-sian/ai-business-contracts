@@ -1,12 +1,14 @@
-# EP-00 bootstrap .gitignore (minimal).
-# The full repository scaffold is an EP-01 responsibility; this file exists only
-# so the M0 baseline commit is free of OS artifacts and generated output.
-
 # macOS
 .DS_Store
 
-# Generated release output (see TARGET_REPOSITORY_TREE.md)
-dist/
+# Generated release output (see TARGET_REPOSITORY_TREE.md).
+# dist/ contains reproducible release artifacts and is never hand-edited.
+# The .gitkeep exception keeps the directory present in a clean checkout so
+# the release tooling has a target without having to create it.
+# Note: this must be `dist/*`, not `dist/`. Git does not descend into an
+# ignored directory, so a `!dist/.gitkeep` negation under `dist/` never matches.
+dist/*
+!dist/.gitkeep
 
 # Python tooling
 .venv/
@@ -15,3 +17,8 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+
+# Mutation-test debris. Tests inject prohibited constructs into guarded paths
+# under try/finally and remove them; this is a backstop so a crashed run can
+# never commit one. See tests/fixtures/negative/README.md.
+__mutation_test__*

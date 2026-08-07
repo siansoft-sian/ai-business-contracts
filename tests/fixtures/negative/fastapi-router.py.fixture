@@ -1,0 +1,10 @@
+"""Injected boundary violation: FastAPI runtime owned by ai-business-api."""
+
+from fastapi import APIRouter, Depends
+
+router = APIRouter()
+
+
+@router.get("/health")
+async def health(session=Depends(lambda: None)):
+    return {"status": "ok"}
