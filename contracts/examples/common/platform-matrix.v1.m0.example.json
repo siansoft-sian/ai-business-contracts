@@ -1,0 +1,14 @@
+{
+  "matrix_version": "0.1.0",
+  "milestone": "M0",
+  "repositories": [
+    { "repository": "ai-business-contracts", "contract_provider": true, "contract_consumer": false, "authority": ["shared-interface-contracts"], "m0_compatibility_check_expected": true, "direct_datastore_access": "forbidden" },
+    { "repository": "ai-business-database", "contract_provider": true, "contract_consumer": true, "authority": ["database-contracts"], "m0_compatibility_check_expected": true, "direct_datastore_access": "owner" },
+    { "repository": "ai-business-auth", "contract_provider": true, "contract_consumer": true, "authority": ["authentication"], "m0_compatibility_check_expected": true, "direct_datastore_access": "permitted" },
+    { "repository": "ai-business-api", "contract_provider": true, "contract_consumer": true, "authority": ["business-authority", "business-authorization"], "m0_compatibility_check_expected": true, "direct_datastore_access": "permitted" },
+    { "repository": "ai-business-agent-runtime", "contract_provider": true, "contract_consumer": true, "authority": ["agent-orchestration"], "m0_compatibility_check_expected": true, "direct_datastore_access": "forbidden" },
+    { "repository": "ai-business-channel-gateway", "contract_provider": true, "contract_consumer": true, "authority": ["channel-adaptation"], "m0_compatibility_check_expected": true, "direct_datastore_access": "forbidden" },
+    { "repository": "ai-business-admin-web", "contract_provider": false, "contract_consumer": true, "authority": ["admin-presentation"], "m0_compatibility_check_expected": true, "direct_datastore_access": "forbidden" },
+    { "repository": "ai-business-infrastructure", "contract_provider": false, "contract_consumer": true, "authority": ["deployment-and-observability-infrastructure"], "m0_compatibility_check_expected": true, "direct_datastore_access": "forbidden" }
+  ]
+}

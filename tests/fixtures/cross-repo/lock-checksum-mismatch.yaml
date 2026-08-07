@@ -1,0 +1,9 @@
+# Correct version, wrong bundle digest: the artifact is not the one this
+# consumer validated against, even though the version number agrees.
+consumer: ai-business-api
+dependencies:
+  ai-business-contracts:
+    version: "0.1.0"
+    source: release
+    manifest_sha256: "3f1c9a2b8d7e6f504132a5b6c7d8e9f00112233445566778899aabbccddeeff0"
+    bundle_sha256: "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"

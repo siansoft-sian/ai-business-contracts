@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-business:contracts:common:consumer-lock:v1",
+  "title": "Consumer Contract Lock",
+  "description": "The immutable dependency record a consuming repository keeps to declare which contracts release it was validated against. Language-neutral by design: it is a data file validated in the consumer's CI, never an import mechanism, and this repository never becomes a runtime library. Pinning a version alone is not enough - integrity hashes are what make the pin verifiable rather than merely stated.",
+  "x-contract-version": "0.1.0",
+  "type": "object",
+  "properties": {
+    "dependencies": {
+      "type": "object",
+      "title": "Pinned dependencies",
+      "description": "Contract dependencies by repository name. At M0 only ai-business-contracts is pinnable, and the property name is fixed so a lock cannot silently point at some other producer.",
+      "properties": {
+        "ai-business-contracts": { "$ref": "#/$defs/pin" }
+      },
+      "required": ["ai-business-contracts"],
+      "additionalProperties": false
+    },
+    "consumer": {
+      "type": "string",
+      "title": "Consuming repository",
+      "description": "Which repository this lock belongs to. Present so a gate reading many locks can attribute a mismatch.",
+      "enum": [
+        "ai-business-database",
+        "ai-business-auth",
+        "ai-business-api",
+        "ai-business-agent-runtime",
+        "ai-business-channel-gateway",
+        "ai-business-admin-web",
+        "ai-business-infrastructure"
+      ]
+    }
+  },
+  "required": ["dependencies"],
+  "additionalProperties": false,
+  "$defs": {
+    "pin": {
+      "type": "object",
+      "title": "Release pin",
+      "description": "An exact, immutable reference to one published contracts release.",
+      "properties": {
+        "version": {
+          "type": "string",
+          "title": "Pinned version",
+          "description": "The exact released version. Not a range, not a prefix: a floating range would let the dependency change without the lock changing, which defeats the lock.",
+          "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$",
+          "examples": ["0.1.0"]
+        },
+        "source": {
+          "type": "string",
+          "title": "Dependency source",
+          "description": "Where the artifact came from. Only 'release' is permitted for a production dependency. A mutable branch is not a source a checksum can describe, so the closed enum is what makes the prohibition enforceable rather than advisory.",
+          "enum": ["release"]
+        },
+        "manifest_sha256": {
+          "$ref": "#/$defs/sha256",
+          "title": "Manifest checksum",
+          "description": "SHA-256 of the release manifest the consumer validated against."
+        },
+        "bundle_sha256": {
+          "$ref": "#/$defs/sha256",
+          "title": "Bundle checksum",
+          "description": "SHA-256 of the contract bundle archive the consumer validated against."
+        },
+        "required_contracts": {
+          "type": "array",
+          "title": "Required contract identifiers",
+          "description": "Contract identifiers this consumer depends on. The platform gate checks each one exists in the pinned release, so a consumer discovers a removed contract at gate time rather than at runtime.",
+          "items": {
+            "type": "string",
+            "pattern": "^urn:ai-business:contracts:[a-z0-9-]+:[a-z0-9-]+:v[0-9]+$"
+          },
+          "uniqueItems": true
+        }
+      },
+      "required": ["version", "source", "manifest_sha256", "bundle_sha256"],
+      "additionalProperties": false
+    },
+    "sha256": {
+      "type": "string",
+      "description": "Lowercase hexadecimal SHA-256 digest, 64 characters.",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "examples": [
+    {
+      "consumer": "ai-business-api",
+      "dependencies": {
+        "ai-business-contracts": {
+          "version": "0.1.0",
+          "source": "release",
+          "manifest_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "bundle_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+          "required_contracts": ["urn:ai-business:contracts:common:error-envelope:v1"]
+        }
+      }
+    }
+  ]
+}

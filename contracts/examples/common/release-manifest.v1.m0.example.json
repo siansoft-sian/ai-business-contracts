@@ -1,0 +1,31 @@
+{
+  "repository": "ai-business-contracts",
+  "version": "0.1.0",
+  "commit_sha": "0123456789abcdef0123456789abcdef01234567",
+  "built_at_utc": "2026-08-07T19:00:00Z",
+  "contracts": [
+    {
+      "contract_id": "urn:ai-business:contracts:common:error-envelope:v1",
+      "version": "0.1.0",
+      "type": "json-schema",
+      "lifecycle": "active",
+      "owner": "ai-business-contracts",
+      "consumers": ["ai-business-api", "ai-business-auth"],
+      "source": "contracts/schemas/common/error-envelope.v1.schema.json",
+      "source_sha256": "b2c3d4e5f60718293a4b5c6d7e8f90112233445566778899aabbccddeeff0123"
+    },
+    {
+      "contract_id": "urn:ai-business:contracts:common:request-metadata:v1",
+      "version": "0.1.0",
+      "type": "json-schema",
+      "lifecycle": "active",
+      "owner": "ai-business-contracts",
+      "consumers": ["ai-business-api"],
+      "source": "contracts/schemas/common/request-metadata.v1.schema.json",
+      "source_sha256": "c3d4e5f60718293a4b5c6d7e8f90112233445566778899aabbccddeeff012345"
+    }
+  ],
+  "bundle_sha256": "a1b2c3d4e5f60718293a4b5c6d7e8f90112233445566778899aabbccddeeff01",
+  "governance_version": "1",
+  "compatibility_result": "no-baseline"
+}

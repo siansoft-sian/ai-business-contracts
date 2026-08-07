@@ -1,0 +1,50 @@
+# Consumer contract lock - TEMPLATE.
+#
+# Copy this into a consuming repository, replace every <placeholder>, and
+# commit it. The consumer's CI validates it against
+# urn:ai-business:contracts:common:consumer-lock:v1 and the platform M0 gate
+# verifies it against the pinned release.
+#
+# This file is DATA, not code. Nothing here is installed and nothing is
+# loaded at runtime: ai-business-contracts is never a runtime dependency of
+# any repository. The lock records which contracts release the consumer was
+# validated against, so a mismatch is caught in CI rather than in production.
+#
+# Three rules make the pin meaningful:
+#
+#   1. VERSION IS EXACT. Not a range, not a prefix, not "latest". A floating
+#      range lets the dependency change without the lock changing, which is
+#      exactly what a lock exists to prevent.
+#
+#   2. SOURCE IS A RELEASE. Never main, never a branch, never a commit on a
+#      moving ref. A mutable source cannot be described by a checksum, so
+#      "source: release" is the only permitted value and the schema enforces
+#      it rather than leaving it to reviewer diligence.
+#
+#   3. CHECKSUMS ARE REQUIRED. A version number is a claim; a SHA-256 is a
+#      verification. Both hashes come from the release's SHA256SUMS and are
+#      re-verified by the gate, so a rebuilt or tampered artifact fails closed.
+#
+# Any mismatch in version, checksum, or a required contract identifier is a
+# HARD gate failure. The gate must never silently accept a newer release.
+
+consumer: <your-repository-name>          # one of the frozen eight, excluding ai-business-contracts
+
+dependencies:
+  ai-business-contracts:
+    # Exact released version. See the release's contract-manifest.json.
+    version: <0.0.0>
+
+    # Only "release" is permitted for a production dependency.
+    source: release
+
+    # From the release's SHA256SUMS. 64 lowercase hex characters each.
+    manifest_sha256: <sha256-of-contract-manifest.json>
+    bundle_sha256: <sha256-of-ai-business-contracts-<version>.tar.gz>
+
+    # Optional but recommended: the contracts this repository actually uses.
+    # The gate checks each one exists in the pinned release, so a removed or
+    # renamed contract is discovered at gate time rather than at runtime.
+    required_contracts:
+      - urn:ai-business:contracts:common:error-envelope:v1
+      - urn:ai-business:contracts:common:request-metadata:v1

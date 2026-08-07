@@ -70,7 +70,12 @@ dependency is **forbidden**. The lock is validated in consumer CI; it is not a
 runtime import mechanism, and this repository never becomes an imported
 library.
 
-The lock template and the platform matrix are EP-04 deliverables.
+The template lives at `templates/consumer-contract-lock.yaml` and is governed
+by `urn:ai-business:contracts:common:consumer-lock:v1`. A lock is verified
+against a release manifest by `scripts/verify_consumer_lock.py`, which fails
+closed on a version mismatch, a checksum mismatch, a required contract absent
+from the release, or a mutable source. The platform authority map is
+`compatibility/platform-m0-matrix.yaml`.
 
 ## Baseline and the first release
 

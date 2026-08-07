@@ -30,7 +30,15 @@ _URN = "urn:ai-business:contracts"
 #: shape our tooling happens to emit.
 FOUNDATION_SCHEMAS = {
     f"contracts/schemas/common/{name}.v1.schema.json": f"{_URN}:common:{name}:v1"
-    for name in ("error-envelope", "request-metadata", "contract-metadata", "compatibility-result")
+    for name in (
+        "error-envelope",
+        "request-metadata",
+        "contract-metadata",
+        "compatibility-result",
+        "consumer-lock",
+        "release-manifest",
+        "platform-matrix",
+    )
 } | {
     "contracts/schemas/events/event-envelope.v1.schema.json": f"{_URN}:events:event-envelope:v1",
 }
@@ -101,6 +109,12 @@ def test_additional_properties_policy_is_explicit_and_intentional() -> None:
     assert policy("contracts/schemas/events/event-envelope.v1.schema.json") is True
     assert policy("contracts/schemas/common/compatibility-result.v1.schema.json") is True
     assert policy("contracts/schemas/common/contract-metadata.v1.schema.json") is False
+    # The cross-repo control-plane contracts are closed for the same reason as
+    # the catalog: a misspelled key in a lock or manifest is a mistake, and a
+    # gate that ignored it would verify less than it reports.
+    assert policy("contracts/schemas/common/consumer-lock.v1.schema.json") is False
+    assert policy("contracts/schemas/common/release-manifest.v1.schema.json") is False
+    assert policy("contracts/schemas/common/platform-matrix.v1.schema.json") is False
 
 
 def test_contract_metadata_entry_is_closed() -> None:

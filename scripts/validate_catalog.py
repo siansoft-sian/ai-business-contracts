@@ -10,6 +10,7 @@ Per ``TEST_PLAN.md`` Layer C, the catalog must satisfy more than its schema:
 - every consumer is drawn from the frozen eight, and no entry lists itself;
 - every ``source`` path exists, and its checksum is computable;
 - lifecycle states and semantic versions are well-formed;
+- the source's x-contract-version matches the catalog's version;
 - deprecation metadata is present exactly when lifecycle requires it;
 - every contract schema on disk is registered, and every registered source is
   a real contract schema.
@@ -175,6 +176,18 @@ def scan(root: Path) -> list[Violation]:
                 except OSError as exc:
                     violations.append(
                         _defect("checksum", f"{label}: source checksum not computable: {exc}")
+                    )
+                declared_version = schemas.get(source_path, {}).get("x-contract-version")
+                if declared_version is not None and declared_version != version:
+                    violations.append(
+                        _defect(
+                            "version-mismatch",
+                            f"{label}: source declares x-contract-version "
+                            f"{declared_version!r}, catalog says {version!r}. The "
+                            "compatibility engine reads the source value to decide major "
+                            "transitions, so a divergence could make a breaking change "
+                            "appear approved",
+                        )
                     )
                 declared_id = schemas.get(source_path, {}).get("$id")
                 if declared_id is not None and declared_id != contract_id:

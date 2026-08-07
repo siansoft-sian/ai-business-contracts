@@ -55,6 +55,9 @@ def test_examples_exist_for_every_contract() -> None:
         "contract-metadata",
         "event-envelope",
         "compatibility-result",
+        "consumer-lock",
+        "release-manifest",
+        "platform-matrix",
     }
 
 

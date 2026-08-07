@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-business:contracts:common:platform-matrix:v1",
+  "title": "Platform M0 Compatibility Matrix",
+  "description": "Which repositories exist, what each is authoritative for, and which are expected to be checked by the platform M0 gate. Authority is expressed as roles and boundaries rather than by naming the technologies each repository owns; the technology-level frozen notes live in governance/OWNERSHIP.md, outside the scanned release surface. Roles are enumerated so an authority claim is a value the gate can compare, not prose it must interpret.",
+  "x-contract-version": "0.1.0",
+  "type": "object",
+  "properties": {
+    "matrix_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$",
+      "title": "Matrix document version"
+    },
+    "milestone": {
+      "type": "string",
+      "title": "Milestone",
+      "description": "Which milestone's gate this matrix describes.",
+      "enum": ["M0"]
+    },
+    "repositories": {
+      "type": "array",
+      "title": "Platform repositories",
+      "description": "All eight repositories, each exactly once. The count is fixed because the topology is frozen: an added or missing entry means the matrix and the architecture disagree.",
+      "items": { "$ref": "#/$defs/repository_entry" },
+      "minItems": 8,
+      "maxItems": 8
+    }
+  },
+  "required": ["matrix_version", "milestone", "repositories"],
+  "additionalProperties": false,
+  "$defs": {
+    "repository_name": {
+      "type": "string",
+      "enum": [
+        "ai-business-contracts",
+        "ai-business-database",
+        "ai-business-auth",
+        "ai-business-api",
+        "ai-business-agent-runtime",
+        "ai-business-channel-gateway",
+        "ai-business-admin-web",
+        "ai-business-infrastructure"
+      ]
+    },
+    "authority_role": {
+      "type": "string",
+      "title": "Authority role",
+      "description": "What a repository is authoritative for. A closed set, so a declared authority is comparable rather than free text: 'shared-interface-contracts' belongs to exactly one repository, and a second claimant is a detectable error.",
+      "enum": [
+        "shared-interface-contracts",
+        "database-contracts",
+        "authentication",
+        "business-authority",
+        "business-authorization",
+        "agent-orchestration",
+        "channel-adaptation",
+        "admin-presentation",
+        "deployment-and-observability-infrastructure"
+      ]
+    },
+    "repository_entry": {
+      "type": "object",
+      "title": "Repository entry",
+      "properties": {
+        "repository": { "$ref": "#/$defs/repository_name" },
+        "contract_provider": {
+          "type": "boolean",
+          "title": "Provides contracts",
+          "description": "Whether this repository publishes contracts other repositories consume."
+        },
+        "contract_consumer": {
+          "type": "boolean",
+          "title": "Consumes contracts",
+          "description": "Whether this repository consumes contracts published elsewhere."
+        },
+        "authority": {
+          "type": "array",
+          "title": "Authoritative for",
+          "description": "Roles this repository owns. Empty is not permitted: a repository with no authority has no reason to be in the frozen set.",
+          "items": { "$ref": "#/$defs/authority_role" },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "m0_compatibility_check_expected": {
+          "type": "boolean",
+          "title": "Gate check expected",
+          "description": "Whether the platform M0 gate expects a compatibility check from this repository."
+        },
+        "direct_datastore_access": {
+          "type": "string",
+          "title": "Direct datastore access",
+          "description": "Whether this repository may reach the business datastore directly. 'owner' is the repository that owns it; 'permitted' reaches it through the owner's published interface; 'forbidden' must never reach it at all, directly or through pooling infrastructure.",
+          "enum": ["owner", "permitted", "forbidden"]
+        },
+        "notes": {
+          "type": "string",
+          "title": "Boundary note",
+          "description": "Short statement of the boundary in role terms. Technology-level frozen notes belong in governance/OWNERSHIP.md.",
+          "maxLength": 400
+        }
+      },
+      "required": [
+        "repository",
+        "contract_provider",
+        "contract_consumer",
+        "authority",
+        "m0_compatibility_check_expected",
+        "direct_datastore_access"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

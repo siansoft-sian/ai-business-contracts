@@ -28,6 +28,9 @@ EXPECTED_CONTRACT_IDS = {
     "urn:ai-business:contracts:common:contract-metadata:v1",
     "urn:ai-business:contracts:events:event-envelope:v1",
     "urn:ai-business:contracts:common:compatibility-result:v1",
+    "urn:ai-business:contracts:common:consumer-lock:v1",
+    "urn:ai-business:contracts:common:release-manifest:v1",
+    "urn:ai-business:contracts:common:platform-matrix:v1",
 }
 
 
@@ -168,6 +171,27 @@ def test_catalog_id_must_match_source_id(repo_copy: Path) -> None:
     violations = validate_catalog.scan(repo_copy)
 
     assert any(v.pattern == "id-mismatch" for v in violations)
+
+
+def test_source_version_must_match_catalog_version(repo_copy: Path) -> None:
+    """Closes the divergence flagged at EP-02 and escalated at EP-03.
+
+    check_compatibility.py reads x-contract-version from the SOURCE to decide
+    whether a breaking change is covered by a major bump. If the source and the
+    catalog disagreed, a breaking change could appear approved while the
+    catalog still advertised the old version.
+    """
+    import json
+
+    schema_path = repo_copy / "contracts/schemas/common/error-envelope.v1.schema.json"
+    document = json.loads(schema_path.read_text(encoding="utf-8"))
+    document["x-contract-version"] = "0.2.0"
+    schema_path.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
+
+    violations = validate_catalog.scan(repo_copy)
+
+    assert any(v.pattern == "version-mismatch" for v in violations)
+    assert validate_catalog.main(["--root", str(repo_copy)]) == 1
 
 
 def test_unknown_key_is_rejected(repo_copy: Path) -> None:

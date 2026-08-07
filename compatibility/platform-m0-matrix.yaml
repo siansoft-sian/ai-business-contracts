@@ -1,0 +1,119 @@
+# Platform M0 compatibility matrix.
+#
+# All eight repositories, each exactly once, with what each is authoritative
+# for and whether the platform M0 gate expects a compatibility check from it.
+#
+# Validated against urn:ai-business:contracts:common:platform-matrix:v1 by
+# scripts/validate_matrix.py, which additionally enforces the invariants a
+# schema cannot express: exclusive roles held by exactly one repository, and
+# datastore-access boundaries.
+#
+# Authority is expressed as ROLES, not as the technologies each repository
+# owns. That is deliberate: this file sits on the scanned release surface, and
+# naming another repository's implementation here would both trip the boundary
+# gate and blur the ownership line the matrix exists to draw. The
+# technology-level frozen notes - which datastore, which pooling, which
+# migration tool, which orchestration library - live in
+# governance/OWNERSHIP.md, outside the release surface.
+
+matrix_version: "0.1.0"
+milestone: M0
+
+repositories:
+  - repository: ai-business-contracts
+    contract_provider: true
+    contract_consumer: false
+    authority:
+      - shared-interface-contracts
+    m0_compatibility_check_expected: true
+    direct_datastore_access: forbidden
+    notes: >-
+      The shared language. Publishes versioned interface contracts and their
+      governance, and never holds shared business implementation. Consumes no
+      contract from any other repository.
+
+  - repository: ai-business-database
+    contract_provider: true
+    contract_consumer: true
+    authority:
+      - database-contracts
+    m0_compatibility_check_expected: true
+    direct_datastore_access: owner
+    notes: >-
+      Separately owns its database contracts, because those describe
+      stored-function interfaces and migration compatibility. This repository
+      catalogs cross-repository dependencies on them but never becomes their
+      owner. See governance/OWNERSHIP.md.
+
+  - repository: ai-business-auth
+    contract_provider: true
+    contract_consumer: true
+    authority:
+      - authentication
+    m0_compatibility_check_expected: true
+    direct_datastore_access: permitted
+    notes: >-
+      Owns identity and authentication. Authentication is separate from
+      business authorization, which belongs to ai-business-api.
+
+  - repository: ai-business-api
+    contract_provider: true
+    contract_consumer: true
+    authority:
+      - business-authority
+      - business-authorization
+    m0_compatibility_check_expected: true
+    direct_datastore_access: permitted
+    notes: >-
+      Owns business behaviour and authorization decisions. Its externally
+      shared interface schemas are versioned through this repository's contract
+      governance, but the decisions themselves are never encoded in a shared
+      contract.
+
+  - repository: ai-business-agent-runtime
+    contract_provider: true
+    contract_consumer: true
+    authority:
+      - agent-orchestration
+    m0_compatibility_check_expected: true
+    direct_datastore_access: forbidden
+    notes: >-
+      Owns agent orchestration. Its orchestration internals are an
+      implementation detail and never appear in a shared contract. Agent nodes
+      reach business data only through published interfaces, never directly.
+
+  - repository: ai-business-channel-gateway
+    contract_provider: true
+    contract_consumer: true
+    authority:
+      - channel-adaptation
+    m0_compatibility_check_expected: true
+    direct_datastore_access: forbidden
+    notes: >-
+      Owns external channel adaptation: inbound verification, normalization,
+      deduplication, and delivery. Provider-specific adapters stay here.
+
+  - repository: ai-business-admin-web
+    contract_provider: false
+    contract_consumer: true
+    authority:
+      - admin-presentation
+    m0_compatibility_check_expected: true
+    direct_datastore_access: forbidden
+    notes: >-
+      Consumes published interfaces only. Has no direct path to the business
+      datastore, its pooling layer, or agent orchestration internals. Publishes
+      no contract of its own.
+
+  - repository: ai-business-infrastructure
+    contract_provider: false
+    contract_consumer: true
+    authority:
+      - deployment-and-observability-infrastructure
+    m0_compatibility_check_expected: true
+    direct_datastore_access: forbidden
+    notes: >-
+      Owns deployment and the centralized observability collection stack.
+      Consumes deployment and observability interface requirements but never
+      becomes the source of a runtime service contract. Per-service
+      instrumentation stays inside each service.

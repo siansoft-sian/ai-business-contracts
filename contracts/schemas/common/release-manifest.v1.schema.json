@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ai-business:contracts:common:release-manifest:v1",
+  "title": "Release Manifest",
+  "description": "What a published contracts release declares about itself: which commit produced it, which contracts it carries, and the checksums that make a consumer's pin verifiable. This contract is defined before the manifest is generated so the release tooling produces a document conforming to an existing contract rather than defining the shape by accident.",
+  "x-contract-version": "0.1.0",
+  "type": "object",
+  "properties": {
+    "repository": {
+      "type": "string",
+      "title": "Producing repository",
+      "description": "Always this repository. Fixed so a manifest cannot be mistaken for one produced elsewhere.",
+      "const": "ai-business-contracts"
+    },
+    "version": {
+      "type": "string",
+      "title": "Release version",
+      "description": "The released version. Immutable: a correction is a new version, never an edit to this one.",
+      "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$"
+    },
+    "commit_sha": {
+      "type": "string",
+      "title": "Source commit",
+      "description": "The full git commit the release was built from, so the artifact can be traced to reviewable source.",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "built_at_utc": {
+      "type": "string",
+      "format": "date-time",
+      "title": "Build timestamp",
+      "description": "RFC 3339 date-time in UTC with a literal 'Z' offset.",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{1,9})?Z$"
+    },
+    "contracts": {
+      "type": "array",
+      "title": "Released contracts",
+      "description": "Every contract carried by this release, each with the checksum of its source.",
+      "items": { "$ref": "#/$defs/released_contract" },
+      "minItems": 1
+    },
+    "bundle_sha256": {
+      "$ref": "#/$defs/sha256",
+      "title": "Bundle checksum",
+      "description": "SHA-256 of the bundle archive this manifest describes. A consumer's pin is checked against this value."
+    },
+    "governance_version": {
+      "type": "string",
+      "title": "Governance generation",
+      "description": "Which generation of the governance rules the release was produced under, so a gate can tell whether a release predates a policy change.",
+      "pattern": "^[0-9]+$"
+    },
+    "compatibility_result": {
+      "type": "string",
+      "title": "Compatibility verdict",
+      "description": "The verdict carried by this release, mirroring compatibility-result.v1. A release may not be published on a 'fail' verdict; 'no-baseline' means no prior release existed to compare against and confers no compatibility guarantee.",
+      "enum": ["pass", "review_required", "no-baseline"]
+    }
+  },
+  "required": [
+    "repository",
+    "version",
+    "commit_sha",
+    "built_at_utc",
+    "contracts",
+    "bundle_sha256",
+    "governance_version",
+    "compatibility_result"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "released_contract": {
+      "type": "object",
+      "title": "Released contract entry",
+      "description": "One contract as published, carrying everything a consumer needs to verify it without reading the bundle.",
+      "properties": {
+        "contract_id": {
+          "type": "string",
+          "pattern": "^urn:ai-business:contracts:[a-z0-9-]+:[a-z0-9-]+:v[0-9]+$"
+        },
+        "version": { "type": "string", "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$" },
+        "type": { "type": "string", "enum": ["json-schema", "openapi", "asyncapi"] },
+        "lifecycle": { "type": "string", "enum": ["draft", "active", "deprecated", "retired"] },
+        "owner": { "$ref": "#/$defs/repository" },
+        "consumers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/repository" },
+          "uniqueItems": true
+        },
+        "source": {
+          "type": "string",
+          "description": "Repository-relative path to the contract source within the bundle.",
+          "pattern": "^[A-Za-z0-9._/-]+$"
+        },
+        "source_sha256": {
+          "$ref": "#/$defs/sha256",
+          "description": "SHA-256 of the contract source file, so a single contract can be verified without rehashing the whole bundle."
+        }
+      },
+      "required": [
+        "contract_id",
+        "version",
+        "type",
+        "lifecycle",
+        "owner",
+        "consumers",
+        "source",
+        "source_sha256"
+      ],
+      "additionalProperties": false
+    },
+    "repository": {
+      "type": "string",
+      "enum": [
+        "ai-business-contracts",
+        "ai-business-database",
+        "ai-business-auth",
+        "ai-business-api",
+        "ai-business-agent-runtime",
+        "ai-business-channel-gateway",
+        "ai-business-admin-web",
+        "ai-business-infrastructure"
+      ]
+    },
+    "sha256": {
+      "type": "string",
+      "description": "Lowercase hexadecimal SHA-256 digest, 64 characters.",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "examples": [
+    {
+      "repository": "ai-business-contracts",
+      "version": "0.1.0",
+      "commit_sha": "0000000000000000000000000000000000000000",
+      "built_at_utc": "2026-08-07T19:00:00Z",
+      "contracts": [
+        {
+          "contract_id": "urn:ai-business:contracts:common:error-envelope:v1",
+          "version": "0.1.0",
+          "type": "json-schema",
+          "lifecycle": "active",
+          "owner": "ai-business-contracts",
+          "consumers": ["ai-business-api"],
+          "source": "contracts/schemas/common/error-envelope.v1.schema.json",
+          "source_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+        }
+      ],
+      "bundle_sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "governance_version": "1",
+      "compatibility_result": "no-baseline"
+    }
+  ]
+}

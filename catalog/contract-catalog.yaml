@@ -89,3 +89,55 @@ contracts:
     source: contracts/schemas/common/compatibility-result.v1.schema.json
     compatibility: backward
     description: Machine-readable compatibility verdict classifying every change as breaking, review-required, or compatible.
+
+  - contract_id: urn:ai-business:contracts:common:consumer-lock:v1
+    version: "0.1.0"
+    type: json-schema
+    lifecycle: active
+    owner: ai-business-contracts
+    # Every repository that consumes contracts keeps a lock, so every consumer
+    # of anything is a consumer of this. ai-business-contracts is excluded: it
+    # produces contracts rather than pinning them.
+    consumers:
+      - ai-business-database
+      - ai-business-auth
+      - ai-business-api
+      - ai-business-agent-runtime
+      - ai-business-channel-gateway
+      - ai-business-admin-web
+      - ai-business-infrastructure
+    source: contracts/schemas/common/consumer-lock.v1.schema.json
+    compatibility: backward
+    description: Immutable dependency record pinning a contracts release by exact version plus integrity hashes.
+
+  - contract_id: urn:ai-business:contracts:common:release-manifest:v1
+    version: "0.1.0"
+    type: json-schema
+    lifecycle: active
+    owner: ai-business-contracts
+    # Read by every consumer verifying its lock, and by the platform gate.
+    consumers:
+      - ai-business-contracts
+      - ai-business-database
+      - ai-business-auth
+      - ai-business-api
+      - ai-business-agent-runtime
+      - ai-business-channel-gateway
+      - ai-business-admin-web
+      - ai-business-infrastructure
+    source: contracts/schemas/common/release-manifest.v1.schema.json
+    compatibility: backward
+    description: What a published release declares about itself - commit, contracts, and the checksums that make a pin verifiable.
+
+  - contract_id: urn:ai-business:contracts:common:platform-matrix:v1
+    version: "0.1.0"
+    type: json-schema
+    lifecycle: active
+    owner: ai-business-contracts
+    # Governance metadata read by the platform gate rather than by a runtime
+    # service, so the gate operator is the only consumer.
+    consumers:
+      - ai-business-contracts
+    source: contracts/schemas/common/platform-matrix.v1.schema.json
+    compatibility: backward
+    description: Repository authority map and expected M0 gate checks, expressed as roles rather than technologies.

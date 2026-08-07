@@ -1,0 +1,9 @@
+# Pins 0.2.0 while the manifest describes 0.1.0.
+# The gate must NOT resolve this by taking the newer release.
+consumer: ai-business-api
+dependencies:
+  ai-business-contracts:
+    version: "0.2.0"
+    source: release
+    manifest_sha256: "3f1c9a2b8d7e6f504132a5b6c7d8e9f00112233445566778899aabbccddeeff0"
+    bundle_sha256: "a1b2c3d4e5f60718293a4b5c6d7e8f90112233445566778899aabbccddeeff01"
