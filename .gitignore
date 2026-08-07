@@ -1,0 +1,17 @@
+# EP-00 bootstrap .gitignore (minimal).
+# The full repository scaffold is an EP-01 responsibility; this file exists only
+# so the M0 baseline commit is free of OS artifacts and generated output.
+
+# macOS
+.DS_Store
+
+# Generated release output (see TARGET_REPOSITORY_TREE.md)
+dist/
+
+# Python tooling
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
