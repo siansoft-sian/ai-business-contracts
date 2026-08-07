@@ -10,7 +10,7 @@ All evidence files are templates until commands are actually executed in the tar
 | `04-compatibility.md` | compatible/breaking/review-required fixtures | COMPLETE (engine tested) — EP-03 @ `d65cd87`; M0-CON-023/042 NOT RUN |
 | `05-quality-security.md` | local gate, CI, security/dependency scans | NOT RUN |
 | `06-release-artifacts.md` | bundle/manifest/checksums/reproducibility | NOT RUN |
-| `07-cross-repo-readiness.md` | platform matrix and consumer pinning | NOT RUN |
+| `07-cross-repo-readiness.md` | platform matrix and consumer pinning | COMPLETE (gate inputs) — EP-04 @ `7ffcdb5`; M0-CON-041 NOT RUN |
 | `08-audit-verdict.md` | independent M0 audit | NOT RUN |
 
 **Rule:** templates are not evidence. Replace placeholders only with real outputs from the target commit.
