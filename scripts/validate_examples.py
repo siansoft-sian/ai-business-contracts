@@ -65,9 +65,7 @@ def scan(root: Path) -> list[Violation]:
         try:
             schema_path = example_schema_path(example, root)
         except ContractLoadError as exc:
-            violations.append(
-                Violation(path=name, line=0, pattern="example-naming", detail=str(exc))
-            )
+            violations.append(Violation(path=name, line=0, pattern="example-naming", detail=str(exc)))
             continue
 
         if schema_path not in schemas:

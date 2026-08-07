@@ -151,9 +151,7 @@ def test_uncatalogued_contract_is_rejected(repo_copy: Path) -> None:
     """
     source = REPO_ROOT / "contracts/schemas/common/error-envelope.v1.schema.json"
     target = repo_copy / "contracts/schemas/common/orphan.v1.schema.json"
-    document = source.read_text(encoding="utf-8").replace(
-        "common:error-envelope:v1", "common:orphan:v1"
-    )
+    document = source.read_text(encoding="utf-8").replace("common:error-envelope:v1", "common:orphan:v1")
     target.write_text(document, encoding="utf-8")
 
     violations = validate_catalog.scan(repo_copy)

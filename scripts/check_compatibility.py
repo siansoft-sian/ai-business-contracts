@@ -62,9 +62,7 @@ SEMVER = re.compile(r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$")
 
 #: Type changes that do not reject previously valid data. Everything else is
 #: breaking: widening is the exception, not the rule.
-WIDENING_TYPE_CHANGES: frozenset[tuple[str, str]] = frozenset(
-    {("integer", "number")}
-)
+WIDENING_TYPE_CHANGES: frozenset[tuple[str, str]] = frozenset({("integer", "number")})
 
 
 @dataclass
@@ -198,8 +196,7 @@ def _compare_type(
             contract_id,
             "type-changed",
             pointer,
-            f"type changed from {base_type!r} to {cand_type!r}; data written for the "
-            "baseline is rejected",
+            f"type changed from {base_type!r} to {cand_type!r}; data written for the baseline is rejected",
         )
     )
 
@@ -292,9 +289,7 @@ def _compare_pattern(
         compiled = re.compile(cand_pattern)
     except re.error as exc:
         out.breaking.append(
-            Finding(
-                contract_id, "pattern-changed", pointer, f"candidate pattern is invalid: {exc}"
-            )
+            Finding(contract_id, "pattern-changed", pointer, f"candidate pattern is invalid: {exc}")
         )
         return
 
@@ -424,8 +419,7 @@ def _compare_properties(
                     contract_id,
                     "optional-became-required",
                     here,
-                    f"property {name!r} became required; documents that omitted it are "
-                    "now rejected",
+                    f"property {name!r} became required; documents that omitted it are now rejected",
                 )
             )
         _compare_node(contract_id, here, base_doc, cand_doc, base_props[name], cand_props[name], out)

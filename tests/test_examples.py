@@ -75,17 +75,12 @@ def test_examples_contain_no_realistic_personal_data() -> None:
 
 def test_manifest_covers_every_invalid_fixture() -> None:
     """No fixture may sit on disk untested."""
-    on_disk = {
-        p.relative_to(INVALID_DIR).as_posix()
-        for p in INVALID_DIR.rglob("*.json")
-    }
+    on_disk = {p.relative_to(INVALID_DIR).as_posix() for p in INVALID_DIR.rglob("*.json")}
     declared = {entry["file"] for entry in _manifest_entries()}
     assert on_disk == declared, f"undeclared: {on_disk - declared}; missing: {declared - on_disk}"
 
 
-@pytest.mark.parametrize(
-    "entry", _manifest_entries(), ids=lambda e: e["file"].replace("/", "::")
-)
+@pytest.mark.parametrize("entry", _manifest_entries(), ids=lambda e: e["file"].replace("/", "::"))
 def test_invalid_fixture_fails_for_its_declared_reason(entry: dict[str, str]) -> None:
     instance = load_json(INVALID_DIR / entry["file"])
 

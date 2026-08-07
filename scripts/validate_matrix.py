@@ -135,9 +135,7 @@ def scan(root: Path) -> list[Violation]:
     for role, expected_owner in EXCLUSIVE_ROLES.items():
         holders = claimants.get(role, [])
         if not holders:
-            violations.append(
-                _defect("unowned-authority", f"role {role!r} is claimed by no repository")
-            )
+            violations.append(_defect("unowned-authority", f"role {role!r} is claimed by no repository"))
         elif len(holders) > 1:
             violations.append(
                 _defect(

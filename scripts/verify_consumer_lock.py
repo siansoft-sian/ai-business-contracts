@@ -139,9 +139,7 @@ def verify(lock: dict[str, Any], manifest: dict[str, Any]) -> list[Violation]:
 
     # 4. Required contracts must exist in the release.
     released_ids = {
-        entry.get("contract_id")
-        for entry in manifest.get("contracts", [])
-        if isinstance(entry, dict)
+        entry.get("contract_id") for entry in manifest.get("contracts", []) if isinstance(entry, dict)
     }
     for contract_id in pin.get("required_contracts", []) or []:
         if contract_id not in released_ids:
@@ -172,10 +170,7 @@ def verify_manifest_checksum(manifest_path: Path, pin: dict[str, Any]) -> list[V
                 path="lock",
                 line=0,
                 pattern="manifest-checksum-mismatch",
-                detail=(
-                    f"manifest_sha256 {pinned!r} does not match the manifest's actual digest "
-                    f"{actual!r}"
-                ),
+                detail=(f"manifest_sha256 {pinned!r} does not match the manifest's actual digest {actual!r}"),
             )
         ]
     return []

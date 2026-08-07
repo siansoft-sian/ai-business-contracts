@@ -77,9 +77,7 @@ def scan(root: Path) -> list[Violation]:
     except ContractLoadError as exc:
         return [_defect("load-error", str(exc))]
 
-    metadata_schema = next(
-        (doc for doc in schemas.values() if doc.get("$id") == METADATA_ID), None
-    )
+    metadata_schema = next((doc for doc in schemas.values() if doc.get("$id") == METADATA_ID), None)
     if metadata_schema is None:
         return [
             _defect("missing-metadata-schema", f"{METADATA_ID} not found; the catalog cannot be validated")
@@ -90,15 +88,11 @@ def scan(root: Path) -> list[Violation]:
     validator = validator_for(metadata_schema, build_registry(schemas))
     for error in sorted(validator.iter_errors(catalog), key=lambda e: list(e.absolute_path)):
         location = "/".join(str(part) for part in error.absolute_path) or "(root)"
-        violations.append(
-            _defect("schema-invalid", f"at {location}: {error.message}")
-        )
+        violations.append(_defect("schema-invalid", f"at {location}: {error.message}"))
 
     entries = catalog.get("contracts")
     if not isinstance(entries, list):
-        return violations or [
-            _defect("schema-invalid", "'contracts' must be a list")
-        ]
+        return violations or [_defect("schema-invalid", "'contracts' must be a list")]
 
     # 2. Invariants a schema cannot express.
     seen: dict[tuple[str, str], list[str]] = defaultdict(list)
@@ -119,9 +113,7 @@ def scan(root: Path) -> list[Violation]:
             seen[(contract_id, version)].append(label)
 
         if isinstance(version, str) and not SEMVER_PATTERN.match(version):
-            violations.append(
-                _defect("semver", f"{label}: version {version!r} is not MAJOR.MINOR.PATCH")
-            )
+            violations.append(_defect("semver", f"{label}: version {version!r} is not MAJOR.MINOR.PATCH"))
 
         if not isinstance(owner, str) or owner not in FROZEN_REPOSITORIES:
             violations.append(
@@ -138,9 +130,7 @@ def scan(root: Path) -> list[Violation]:
                         )
                     )
             if len(set(consumers)) != len(consumers):
-                violations.append(
-                    _defect("consumer", f"{label}: consumers contains duplicates")
-                )
+                violations.append(_defect("consumer", f"{label}: consumers contains duplicates"))
 
         if isinstance(lifecycle, str):
             if lifecycle not in VALID_LIFECYCLES:
@@ -158,25 +148,20 @@ def scan(root: Path) -> list[Violation]:
                 violations.append(
                     _defect(
                         "deprecation-metadata",
-                        f"{label}: deprecation metadata is meaningless while "
-                        f"lifecycle is {lifecycle!r}",
+                        f"{label}: deprecation metadata is meaningless while lifecycle is {lifecycle!r}",
                     )
                 )
 
         if isinstance(source, str):
             source_path = root / source
             if not source_path.is_file():
-                violations.append(
-                    _defect("missing-source", f"{label}: source {source!r} does not exist")
-                )
+                violations.append(_defect("missing-source", f"{label}: source {source!r} does not exist"))
             else:
                 catalogued_sources.add(source_path.resolve())
                 try:
                     hashlib.sha256(source_path.read_bytes()).hexdigest()
                 except OSError as exc:
-                    violations.append(
-                        _defect("checksum", f"{label}: source checksum not computable: {exc}")
-                    )
+                    violations.append(_defect("checksum", f"{label}: source checksum not computable: {exc}"))
                 declared_version = schemas.get(source_path, {}).get("x-contract-version")
                 if declared_version is not None and declared_version != version:
                     violations.append(
@@ -194,8 +179,7 @@ def scan(root: Path) -> list[Violation]:
                     violations.append(
                         _defect(
                             "id-mismatch",
-                            f"{label}: source declares $id {declared_id!r}, "
-                            f"catalog says {contract_id!r}",
+                            f"{label}: source declares $id {declared_id!r}, catalog says {contract_id!r}",
                         )
                     )
 

@@ -56,9 +56,7 @@ def _violation(path: Path, root: Path, pattern: str, detail: str) -> Violation:
     return Violation(path=relative_to(path, root), line=0, pattern=pattern, detail=detail)
 
 
-def _check_object_schemas_declare_additional_properties(
-    node: Any, pointer: str, out: list[str]
-) -> None:
+def _check_object_schemas_declare_additional_properties(node: Any, pointer: str, out: list[str]) -> None:
     """Recursively require an explicit additionalProperties on object schemas."""
     if not isinstance(node, dict):
         return
@@ -66,9 +64,7 @@ def _check_object_schemas_declare_additional_properties(
     if declares_object and "additionalProperties" not in node:
         out.append(pointer or "#")
     for key, value in node.items():
-        if key in {"properties", "$defs", "definitions", "patternProperties"} and isinstance(
-            value, dict
-        ):
+        if key in {"properties", "$defs", "definitions", "patternProperties"} and isinstance(value, dict):
             for sub_key, sub_value in value.items():
                 _check_object_schemas_declare_additional_properties(
                     sub_value, f"{pointer}/{key}/{sub_key}", out

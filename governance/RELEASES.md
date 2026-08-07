@@ -1,7 +1,8 @@
 # Release Policy
 
-**Status:** policy complete. Bundle generation and reproducibility checks are
-implemented by EP-05, so `M0-CON-036`–`M0-CON-038` are claimed there, not here.
+**Status:** complete and enforced. `scripts/build_bundle.py` produces the
+artifacts, `scripts/verify_bundle.py` checks them against the rules below, and
+both run inside `scripts/quality_gate.sh`.
 
 ## Immutable releases
 

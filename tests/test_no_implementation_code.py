@@ -120,9 +120,7 @@ def test_content_patterns_do_not_fire_outside_release_surface(release_surface: P
         ("migration.sql.fixture", "sql-source"),
     ],
 )
-def test_injected_implementation_fails_in_real_guarded_path(
-    fixture_name: str, expected_label: str
-) -> None:
+def test_injected_implementation_fails_in_real_guarded_path(fixture_name: str, expected_label: str) -> None:
     """The default invocation guards the real ``contracts/`` directory."""
     assert check_no_implementation_code.main([]) == 0
 

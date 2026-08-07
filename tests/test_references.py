@@ -99,9 +99,7 @@ def test_unresolvable_urn_is_rejected(tmp_path: Path) -> None:
             **BASE,
             "$id": "urn:ai-business:contracts:common:user:v1",
             "$defs": {},
-            "properties": {
-                "token": {"$ref": "urn:ai-business:contracts:common:absent:v1#/$defs/token"}
-            },
+            "properties": {"token": {"$ref": "urn:ai-business:contracts:common:absent:v1#/$defs/token"}},
         },
     )
 
@@ -122,9 +120,7 @@ def test_dangling_cross_schema_pointer_is_rejected(tmp_path: Path) -> None:
             **BASE,
             "$id": "urn:ai-business:contracts:common:user:v1",
             "$defs": {},
-            "properties": {
-                "token": {"$ref": "urn:ai-business:contracts:common:base:v1#/$defs/absent"}
-            },
+            "properties": {"token": {"$ref": "urn:ai-business:contracts:common:base:v1#/$defs/absent"}},
         },
     )
 
@@ -148,9 +144,7 @@ def test_dangling_local_pointer_is_rejected(tmp_path: Path) -> None:
     assert check_references.main(["--root", str(tmp_path)]) == 1
 
 
-@pytest.mark.parametrize(
-    "fragment", ["#/$defs/token", "#/properties/token", "#"]
-)
+@pytest.mark.parametrize("fragment", ["#/$defs/token", "#/properties/token", "#"])
 def test_pointer_resolution_accepts_valid_fragments(fragment: str) -> None:
     document = {**BASE, "properties": {"token": {"type": "string"}}}
     assert check_references._resolve_pointer(document, fragment.lstrip("#"))

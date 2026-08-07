@@ -104,11 +104,7 @@ def test_every_mandatory_layer_d_case_has_a_fixture() -> None:
 
 def test_no_undeclared_fixtures() -> None:
     """Every fixture on disk is declared, so none goes untested."""
-    on_disk = {
-        f"{case.parent.name}/{case.name}"
-        for case in FIXTURE_ROOT.glob("*/*")
-        if case.is_dir()
-    }
+    on_disk = {f"{case.parent.name}/{case.name}" for case in FIXTURE_ROOT.glob("*/*") if case.is_dir()}
     assert on_disk == set(MANDATORY_CASES), f"undeclared: {on_disk - set(MANDATORY_CASES)}"
 
 
@@ -131,14 +127,11 @@ def test_fixture_is_classified_correctly(case: str) -> None:
 
     bucket = _expected_bucket(case)
     assert MANDATORY_CASES[case] in _classes(document, bucket), (
-        f"{case}: expected change {MANDATORY_CASES[case]!r} in {bucket}, "
-        f"got {_classes(document, bucket)}"
+        f"{case}: expected change {MANDATORY_CASES[case]!r} in {bucket}, got {_classes(document, bucket)}"
     )
 
 
-@pytest.mark.parametrize(
-    "case", sorted(c for c in MANDATORY_CASES if c.startswith("compatible/"))
-)
+@pytest.mark.parametrize("case", sorted(c for c in MANDATORY_CASES if c.startswith("compatible/")))
 def test_compatible_fixtures_report_nothing_breaking(case: str) -> None:
     """A compatible change must not produce a breaking or review finding."""
     document = _run(case)
@@ -146,9 +139,7 @@ def test_compatible_fixtures_report_nothing_breaking(case: str) -> None:
     assert document["review_required"] == []
 
 
-@pytest.mark.parametrize(
-    "case", sorted(c for c in MANDATORY_CASES if c.startswith("review-required/"))
-)
+@pytest.mark.parametrize("case", sorted(c for c in MANDATORY_CASES if c.startswith("review-required/")))
 def test_review_required_fixtures_are_not_called_compatible(case: str) -> None:
     """Additive is not automatically safe (HARNESS.md section 6)."""
     document = _run(case)
@@ -178,9 +169,7 @@ def test_regex_change_without_a_witness_is_escalated_not_cleared() -> None:
     """No counter-example means undecidable, which is never 'compatible'."""
     document = _run("review-required/regex-changed-without-witness")
 
-    finding = next(
-        f for f in document["review_required"] if f["change"] == "pattern-changed"
-    )
+    finding = next(f for f in document["review_required"] if f["change"] == "pattern-changed")
     assert "witness" not in finding
     assert document["compatible"] == []
 
@@ -293,10 +282,14 @@ def test_cli_exit_codes_follow_the_verdict(tmp_path: Path) -> None:
         output = tmp_path / f"{case.replace('/', '_')}.json"
         code = check_compatibility.main(
             [
-                "--baseline", str(directory / "baseline"),
-                "--candidate", str(directory / "candidate"),
-                "--checked-at", STAMP,
-                "--output", str(output),
+                "--baseline",
+                str(directory / "baseline"),
+                "--candidate",
+                str(directory / "candidate"),
+                "--checked-at",
+                STAMP,
+                "--output",
+                str(output),
             ]
         )
         assert code == expected_exit, f"{case}: expected exit {expected_exit}, got {code}"
@@ -314,10 +307,14 @@ def test_output_is_deterministic_for_a_fixed_timestamp(tmp_path: Path) -> None:
     for output in (first, second):
         check_compatibility.main(
             [
-                "--baseline", str(directory / "baseline"),
-                "--candidate", str(directory / "candidate"),
-                "--checked-at", STAMP,
-                "--output", str(output),
+                "--baseline",
+                str(directory / "baseline"),
+                "--candidate",
+                str(directory / "candidate"),
+                "--checked-at",
+                STAMP,
+                "--output",
+                str(output),
             ]
         )
     assert first.read_text() == second.read_text()

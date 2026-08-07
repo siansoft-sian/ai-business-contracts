@@ -81,7 +81,8 @@ def test_lock_template_placeholders_are_obvious() -> None:
     from _contracts import build_registry, validator_for
 
     schema = next(
-        doc for doc in schemas.values()
+        doc
+        for doc in schemas.values()
         if doc.get("$id") == "urn:ai-business:contracts:common:consumer-lock:v1"
     )
     errors = list(validator_for(schema, build_registry(schemas)).iter_errors(document))
@@ -265,9 +266,7 @@ def test_unmutated_matrix_copy_is_valid(matrix_copy: Path) -> None:
 
 def test_missing_repository_is_rejected(matrix_copy: Path) -> None:
     matrix = load_yaml(MATRIX_PATH)
-    matrix["repositories"] = [
-        e for e in matrix["repositories"] if e["repository"] != "ai-business-auth"
-    ]
+    matrix["repositories"] = [e for e in matrix["repositories"] if e["repository"] != "ai-business-auth"]
     _write_matrix(matrix_copy, matrix)
 
     violations = validate_matrix.scan(matrix_copy)

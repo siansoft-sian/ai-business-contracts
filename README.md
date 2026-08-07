@@ -47,6 +47,22 @@ No contract may define tenant identifiers, tenant request headers, tenant
 context, tenant-scoped authorization, tenant routing, or tenant-scoped
 storage. This is checked, not assumed.
 
+## Building and validating
+
+One command runs every blocking check — lint, types, tests, schema, reference,
+example, catalog, matrix, compatibility, boundary scans, secret scan,
+dependency audit, and the release build. CI runs this same script.
+
+```bash
+uv sync --locked --all-groups
+./scripts/quality_gate.sh            # add --skip-release while iterating
+```
+
+It produces `dist/` (bundle, `contract-manifest.json`, `SHA256SUMS`,
+`compatibility-summary.json`) and `evidence/m0-summary.json`. The bundle and
+manifest are byte-reproducible from a commit: rebuilding the same commit
+yields the same checksums, which is what makes a consumer's pin verifiable.
+
 ## Boundary enforcement
 
 Two scanners guard the **release surface** — `contracts/`, `catalog/`,

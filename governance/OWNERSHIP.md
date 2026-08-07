@@ -3,7 +3,8 @@
 **Status:** authoritative for repository boundaries. Catalog-level owner
 enforcement is live: `catalog/contract-catalog.yaml` registers one owner per
 contract and `scripts/validate_catalog.py` rejects any other arrangement. The
-platform matrix is an EP-04 deliverable.
+platform authority map is `compatibility/platform-m0-matrix.yaml`, validated by
+`scripts/validate_matrix.py`.
 
 ## Rule
 

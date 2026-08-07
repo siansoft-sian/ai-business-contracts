@@ -95,9 +95,7 @@ def test_additional_properties_policy_is_explicit_and_intentional() -> None:
     can gain a field in a MINOR release, while a closed catalog rejects a
     misspelled key instead of silently ignoring it.
     """
-    schemas = {
-        path.relative_to(REPO_ROOT).as_posix(): doc for path, doc in load_schemas(REPO_ROOT).items()
-    }
+    schemas = {path.relative_to(REPO_ROOT).as_posix(): doc for path, doc in load_schemas(REPO_ROOT).items()}
     for relative in FOUNDATION_SCHEMAS:
         assert "additionalProperties" in schemas[relative], f"{relative} leaves the policy implicit"
 
@@ -120,9 +118,7 @@ def test_additional_properties_policy_is_explicit_and_intentional() -> None:
 def test_contract_metadata_entry_is_closed() -> None:
     """A catalog entry rejects unknown keys, not just the catalog root."""
     document = json.loads(
-        (REPO_ROOT / "contracts/schemas/common/contract-metadata.v1.schema.json").read_text(
-            encoding="utf-8"
-        )
+        (REPO_ROOT / "contracts/schemas/common/contract-metadata.v1.schema.json").read_text(encoding="utf-8")
     )
     assert document["$defs"]["contract_entry"]["additionalProperties"] is False
 
@@ -162,8 +158,20 @@ def test_no_business_rules_or_implementation_technology() -> None:
     JSON would flag the very identifiers the standard mandates.
     """
     forbidden = (
-        "invoice", "customer", "order", "payment", "booking", "price", "tariff",
-        "postgres", "kafka", "rabbitmq", "redis", "grpc", "graphql", "websocket",
+        "invoice",
+        "customer",
+        "order",
+        "payment",
+        "booking",
+        "price",
+        "tariff",
+        "postgres",
+        "kafka",
+        "rabbitmq",
+        "redis",
+        "grpc",
+        "graphql",
+        "websocket",
     )
     for path, document in load_schemas(REPO_ROOT).items():
         haystack = " ".join(_authored_text(document)).lower()

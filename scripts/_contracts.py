@@ -152,9 +152,7 @@ def example_schema_path(example: Path, root: Path) -> Path:
     stem = example.name[: -len(EXAMPLE_SUFFIX)]
     parts = stem.split(".")
     if len(parts) < 3 or not parts[1].startswith("v"):
-        raise ContractLoadError(
-            f"{example}: example name must be '<name>.v<major>.<case>{EXAMPLE_SUFFIX}'"
-        )
+        raise ContractLoadError(f"{example}: example name must be '<name>.v<major>.<case>{EXAMPLE_SUFFIX}'")
     name, major = parts[0], parts[1]
     family = example.parent.name
     return root / SCHEMA_ROOT / family / f"{name}.{major}{SCHEMA_SUFFIX}"

@@ -1,0 +1,56 @@
+# Continuous integration for ai-business-contracts.
+#
+# This workflow deliberately contains NO check logic. It installs a pinned
+# toolchain and runs scripts/quality_gate.sh -- the same entry point a
+# developer runs locally. Restating the individual checks here is what
+# HARNESS.md section 8 and TEST_PLAN.md section 3 forbid: two lists that drift
+# apart mean a green CI can coexist with a red local gate, and neither is then
+# trustworthy. tests/test_quality_gate.py fails if this file starts invoking
+# checks directly.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  quality-gate:
+    name: Quality gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out the commit under test
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install the pinned toolchain
+        # --locked fails if uv.lock is out of date rather than silently
+        # updating it, which would both change the tested dependency set and
+        # dirty the working tree the release stage requires to be clean.
+        run: uv sync --locked --all-groups
+
+      - name: Run the quality gate
+        run: ./scripts/quality_gate.sh
+
+      - name: Upload release artifacts and evidence summary
+        # Runs even on failure: a failing gate's evidence summary is the most
+        # useful artifact it produces.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m0-artifacts-${{ github.sha }}
+          path: |
+            dist/
+            evidence/m0-summary.json
+          if-no-files-found: warn
+          retention-days: 14

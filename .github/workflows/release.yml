@@ -1,0 +1,75 @@
+# Release workflow for ai-business-contracts.
+#
+# A release is the same gate plus publication. It runs scripts/quality_gate.sh
+# unchanged -- there is no "release build" that skips checks, and no check that
+# only runs at release time. If the gate is red the release does not happen.
+#
+# Releases are immutable (governance/RELEASES.md): a correction is published as
+# a new version, never as an edit to one already released. This workflow's part
+# in that is checking that the tag and the manifest agree on the version before
+# anything is published, so an artifact can never be published under a name
+# that does not describe it. Re-releasing a changed version is caught earlier,
+# by check_compatibility.py's released-version-content-changed finding.
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish contract release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out the tagged commit
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install the pinned toolchain
+        run: uv sync --locked --all-groups
+
+      - name: Run the quality gate
+        # The same script CI and local development run. The release stage
+        # inside it builds and verifies the artifacts published below.
+        run: ./scripts/quality_gate.sh
+
+      - name: Confirm the tag matches the released version
+        # A tag that disagrees with the manifest would publish an artifact
+        # under a name that does not describe it.
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          manifest_version="$(python3 -c "import json;print(json.load(open('dist/contract-manifest.json'))['version'])")"
+          tag_version="${GITHUB_REF_NAME#v}"
+          if [ "$manifest_version" != "$tag_version" ]; then
+            echo "tag ${GITHUB_REF_NAME} does not match manifest version ${manifest_version}" >&2
+            exit 1
+          fi
+
+      - name: Publish the release artifacts
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          fail_on_unmatched_files: true
+          files: |
+            dist/ai-business-contracts-*.tar.gz
+            dist/contract-manifest.json
+            dist/SHA256SUMS
+            dist/compatibility-summary.json
+
+      - name: Upload the evidence summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: m0-evidence-${{ github.sha }}
+          path: evidence/m0-summary.json
+          if-no-files-found: warn
