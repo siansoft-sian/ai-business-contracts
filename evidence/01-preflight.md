@@ -1,17 +1,20 @@
 # Evidence — Preflight & Conflict Inventory
 
-EP-00 Status: **COMPLETE** (inventory recorded; re-executed and re-verified)
+EP-00 Status: **COMPLETE** (inventory recorded; re-executed and re-verified across three runs)
 
 - Repository: `ai-business-contracts`
-- Repository URL: `https://github.com/siansoft-sian/ai-business-contracts.git` (remote `origin`)
+- Repository URL: `https://github.com/siansoft-sian/ai-business-contracts.git` (remote `origin`) — **unreachable at Run 3, see §D.2**
 - Branch: `main`
 - Baseline audited commit (Run 1): `13afef142f24b1bca5a5979cc7aaefc20d284ce0` (tag: `m0-ep00-baseline`)
 - Re-execution audited commit (Run 2): `a29b4be5d6a71ea1f07b24c243922f995c112f75`
+- Re-execution audited commit (Run 3): `f15a44caa99f4850281d9d4b2e6eef2dbfabd24a`
 - Timestamp UTC — Run 1: `2026-08-07T16:27:25Z`
 - Timestamp UTC — Run 2: `2026-08-07T16:55:17Z`
+- Timestamp UTC — Run 3: `2026-08-07T17:26:14Z`
+- Working-tree status at Run 3 observation: **NOT clean** — this document and `EVIDENCE_INDEX.md` had been reverted to their commit-A templates. See §D.1.
 - Executed by: EP-00 per `execution-prompts/EP-00-PREFLIGHT.md`
 
-> **No acceptance criterion is marked `PASS` in this document.** EP-00 *observes* the starting state; it does not *enforce* it. See §6. Run 2 did not change this: it added no scanner and no mutation test, so it could not upgrade any criterion.
+> **No acceptance criterion is marked `PASS` in this document.** EP-00 *observes* the starting state; it does not *enforce* it. See §6. Neither Run 2 nor Run 3 changed this: neither added a scanner or a mutation test, so neither could upgrade any criterion.
 
 ## 0. Commit model
 
@@ -22,14 +25,23 @@ A  chore: bootstrap ai-business-contracts M0 governing pack   ← tag: m0-ep00-b
 │                                                             ← Run 1 executed against THIS state
 B  docs(evidence): record EP-00 preflight                     ← Run 1 output
 │                                                             ← Run 2 executed against THIS state
-C  docs(evidence): re-execute EP-00 preflight                 ← Run 2 output (this revision)
+C  docs(evidence): re-execute EP-00 preflight                 ← Run 2 output
+│                                                             ← Run 3 executed against THIS state
+D  docs(evidence): EP-00 preflight run 3                      ← Run 3 output (this revision)
 │
 HEAD
 ```
 
-Run 1 searches, inventories, and hashes were executed against `m0-ep00-baseline`. Run 2 searches, inventories, and hashes were executed against commit `a29b4be`. Neither was executed against the working tree. Anchoring to a committed object rather than to `HEAD^` keeps every figure below reproducible after later commits.
+Run 1 searches, inventories, and hashes were executed against `m0-ep00-baseline`. Run 2 against commit `a29b4be`. Run 3 against commit `f15a44c`. **None was executed against the working tree.** Anchoring to a committed object rather than to `HEAD^` keeps every figure below reproducible after later commits — a property Run 3 depended on, since its working tree was not clean (§D.1).
 
 **Why Run 2 exists.** Run 1 observed a repository that had no remote and no published tag, so `EP-00-PREFLIGHT.md` instruction 1 ("record repository URL") could not be satisfied at the time. Both facts have since changed. Run 2 re-executes the full instruction set against the current committed state rather than inheriting Run 1's figures. Run 1's observations are retained verbatim in Sections A and B: they are the only record of the true greenfield starting state, and EP-00 instruction 5 forbids deleting evidence of the initial state.
+
+**Why Run 3 exists.** Two conditions, both regressions rather than progress:
+
+1. This document had been **reverted in the working tree to its commit-A `NOT RUN` template**, discarding the Run 1 and Run 2 record from the checkout. The repository presented itself as having no preflight evidence at all.
+2. Run 2 closed finding 6 by asserting that `m0-ep00-baseline` was published to `origin`, making §4's hash table reproducible from a fresh clone. `origin` is no longer reachable (§D.2), so that assertion is no longer verifiable and the finding is reopened.
+
+Run 3 is pure observation plus one recovery action (`git restore`), recorded in §D.1. Sections A, B, C and §1, §3, §4, §5 are unchanged from the Run 2 revision.
 
 ---
 
@@ -232,6 +244,227 @@ Unchanged. Git identity `siansoft <siansoft@gmail.com>`; `init.defaultBranch` st
 
 ---
 
+## Section D — Run 3 re-execution (observation, against commit `f15a44c`)
+
+Run 3 re-executes every EP-00 instruction against the current committed state. Unlike Runs 1 and 2 it began with a **dirty working tree**, and that divergence is itself the principal finding.
+
+### D.1 Identity, working-tree status, and the evidence revert (instruction 1)
+
+EP-00 instruction 5 — *"do not delete evidence of the initial state before recording it"* — governs here. The pre-restore state was captured **before** any recovery action:
+
+```bash
+$ date -u +%Y-%m-%dT%H:%M:%SZ
+$ git status --porcelain
+$ git diff --stat
+$ shasum -a 256 evidence/01-preflight.md evidence/EVIDENCE_INDEX.md README.md
+$ git rev-parse HEAD
+$ git rev-parse m0-ep00-baseline
+$ git check-ignore -v .DS_Store
+$ wc -l evidence/01-preflight.md
+```
+
+| Field | Value | Exit |
+|---|---|---:|
+| Repository URL | `https://github.com/siansoft-sian/ai-business-contracts.git` | `0` |
+| Branch | `main` | `0` |
+| Commit SHA | `f15a44caa99f4850281d9d4b2e6eef2dbfabd24a` | `0` |
+| `HEAD` vs `origin/main` (local ref) | identical — `f15a44c…` both | `0` |
+| Local tag | `m0-ep00-baseline` → `13afef14…` | `0` |
+| Working-tree status | **NOT clean** — ` M evidence/01-preflight.md`, ` M evidence/EVIDENCE_INDEX.md`, `?? README.md` | `0` |
+| `git diff --stat` | `2 files changed, 17 insertions(+), 490 deletions(-)` | `0` |
+| `.DS_Store` on disk | present, 6148 bytes; ignored via `.gitignore:6` | `0` |
+
+**The revert is exactly a checkout of commit A.** The pre-restore working-tree digests were not arbitrary — they reproduce the §4 baseline table row-for-row:
+
+| File | Working-tree SHA-256 (pre-restore) | Matches |
+|---|---|---|
+| `evidence/01-preflight.md` | `02bff1ea53adf18210efb44a2b6489a537fdd7480e38e83a3b968335f05656d8` | §4 baseline row — the unmodified `NOT RUN` template at commit A |
+| `evidence/EVIDENCE_INDEX.md` | `3b5d37370f30be42f28a12887b89670a09b1a82aadf676036c9d87432eb4f978` | §4 baseline row |
+| `README.md` (untracked) | `e6283f0fc91470a08ac7579f23617f4070e8f6a447b62676af0196d9326ece27` | pack `README.md`, never committed (§B.1) |
+
+`wc -l` confirms the magnitude: **37 lines in the working tree against 510 at `f15a44c`.** The Run 1 and Run 2 record — every command, exit code, and hash — was absent from the checkout. Per `HARNESS.md` §7 and `EVIDENCE_INDEX.md`'s own rule, *templates are not evidence*: the repository was presenting itself as having no preflight record.
+
+**Recovery action (the only mutation in Run 3):**
+
+```bash
+$ git restore evidence/01-preflight.md evidence/EVIDENCE_INDEX.md
+```
+
+| Command | Exit | Post-condition |
+|---|---:|---|
+| `git restore` (2 files) | `0` | digests returned to `050e2933…` and `6e9c8198…` — byte-identical to `f15a44c` (§D.7) |
+| `git status --porcelain` (after) | `0` | `?? README.md` only |
+
+Untracked `README.md` was **not** removed or committed. It is the pack README, classified `replace` at §B.1; authoring the repository README remains an EP-01 deliverable (finding 3).
+
+### D.2 Remote reachability — finding 6 reopened
+
+```bash
+$ git remote -v
+$ git ls-remote --heads --tags origin
+```
+
+| Command | Exit | Result |
+|---|---:|---|
+| `git remote -v` | `0` | `origin https://github.com/siansoft-sian/ai-business-contracts.git` (fetch + push) |
+| `git ls-remote --heads --tags origin` | `128` | `remote: Repository not found.` / `fatal: repository '…/ai-business-contracts.git/' not found` |
+
+`origin/main` still resolves **locally** to `f15a44c` — a stale remote-tracking ref proving a fetch or push succeeded at some earlier point. It is not evidence that the remote is reachable now.
+
+**Cause is indeterminate and is not guessed here.** GitHub returns `Repository not found` both for a deleted/renamed repository and for a private repository accessed without credentials. This session is non-interactive and the claude.ai GitHub connector is unauthenticated, so the two cannot be distinguished. `gh` is installed (§D.6) but was deliberately not used to probe: the recorded decision for this run was to state the ambiguity rather than resolve it.
+
+**Consequence.** Run 2 closed finding 6 on the basis that `m0-ep00-baseline` was published to `origin`, making §4's hash table reproducible by an auditor from a fresh clone. That reproducibility cannot currently be demonstrated. **Finding 6 is reopened** (§7). The §4 table remains internally verifiable from the local object store — §4.1 and §D.7 both reproduce it — but *local* verification is weaker than the fresh-clone property Run 2 claimed.
+
+### D.3 Inventory (instruction 2)
+
+```bash
+$ git ls-tree -r --name-only f15a44c | wc -l
+$ git ls-tree -r --name-only f15a44c | grep -Ec 'pyproject\.toml|requirements.*\.txt|package\.json|package-lock\.json|uv\.lock|poetry\.lock|Pipfile'
+$ git ls-tree -r --name-only f15a44c | grep -c 'DS_Store'
+$ git ls-tree -r --name-only f15a44c | grep -Ec '^(contracts|catalog|compatibility|governance|templates|scripts|tests|dist|\.github)/'
+$ git diff --name-status a29b4be f15a44c
+```
+
+| Check | Exit | Result | Δ vs Run 2 |
+|---|---:|---|---|
+| tracked file count | `0` | `28` | unchanged |
+| dependency manifests | `1` | `0` — still none declared | unchanged |
+| OS artifacts tracked | `1` | `0` | unchanged |
+| files under contract-bearing paths | `1` | `0` | unchanged |
+| `a29b4be` → `f15a44c` | `0` | `M evidence/01-preflight.md`, `M evidence/EVIDENCE_INDEX.md` (+216/−16) | commit C touched evidence only |
+
+Directory probe (working tree and git tree agree):
+
+| Path | State |
+|---|---|
+| `contracts/` `catalog/` `compatibility/` `governance/` `templates/` `scripts/` `tests/` `dist/` `.github/` | **all ABSENT** |
+
+Consistent with §B.3 and §C.2: these are EP-01/EP-02 deliverables, deliberately not created. **No contract-bearing path exists in this repository at Run 3.**
+
+### D.4 Conflict searches (instruction 3)
+
+The same ten patterns from §1, re-executed against `f15a44c`.
+
+| # | Category | Exit | Lines | Files | Δ vs Run 2 |
+|---|---|---:|---:|---:|---|
+| C1 | Multi-tenant constructs | `0` | 42 | 15 | +6 lines |
+| C2 | Foreign-repo implementation (FastAPI/runtime) | `0` | 9 | 6 | +1 line |
+| C3 | SQL / migrations / DB drivers / PgBouncer | `0` | 24 | 12 | +1 line |
+| C4 | Auth / JWT / Casbin | `0` | 8 | 5 | +1 line |
+| C5 | LangGraph | `0` | 20 | 11 | +1 line |
+| C6 | Channel adapters / webhooks | `0` | 6 | 3 | +1 line |
+| C7 | React / frontend | `0` | 2 | 1 | +1 line |
+| C8 | Deployment / IaC | `0` | 4 | 3 | unchanged |
+| C9 | Existing schemas / CI / tests / release metadata | `0` | 2 | 1 | +1 line |
+| C10 | Prohibited file types | `1` | 0 | 0 | unchanged |
+
+**C10 remains exit `1` — zero `.sql`, `.tf`, `.tsx`, `.ts`, `.js`, `.py`, `.yaml`, `.toml`, or `.env` files are tracked.** All 28 tracked files are `.md` plus `.gitignore`.
+
+#### D.4.1 Every match is outside contract-bearing scope — verified, not assumed
+
+Run 2 asserted this by inspection. Run 3 verifies it mechanically: the union of all files matched by C1–C9 was intersected against the contract-bearing prefixes.
+
+```bash
+$ for pat in <C1..C9 patterns>; do git grep -l -I -E -i "$pat" f15a44c; done \
+    | sed 's|^f15a44c:||' | sort -u \
+    | grep -E '^(contracts|catalog|compatibility|governance|templates)/'
+```
+
+Exit `1` — **no match.** The 17 files matched across all nine categories are: 11 root governing `.md` documents, 5 execution prompts, and `evidence/01-preflight.md`. Not one lies in a contract-bearing path, because none exists (§D.3).
+
+#### D.4.2 Self-matching is compounding, as §1.3 predicted
+
+The §1.3 warning was that `evidence/` is a false-positive source that *grows every time evidence is written*. Run 3 is the second consecutive confirmation, and the C7/C9 series makes it unambiguous:
+
+| Category | Run 1 (`13afef14`) | Run 2 (`a29b4be`) | Run 3 (`f15a44c`) |
+|---|---:|---:|---:|
+| C7 React / frontend | 0 | 1 | 2 |
+| C9 Schemas / CI / tests | 0 | 1 | 2 |
+
+Both C7 matches at `f15a44c` are the evidence file quoting its own pattern:
+
+```text
+evidence/01-preflight.md:253  | C7 | React / frontend | `from 'react'\|useState\|…` | `1` | 0 | 0 |
+evidence/01-preflight.md:301  evidence/01-preflight.md:155  | C7 | React / frontend | …
+```
+
+Line 301 is Run 2 *quoting Run 1's row* — a second-order match. The growth is not linear in contract content, which is zero; it is linear in evidence written. `evidence/01-preflight.md` alone now accounts for 12 of the 42 C1 matches.
+
+> **Binding input to EP-01, restated and now twice-confirmed.** The multi-tenancy and implementation-boundary scanners must be **path-scoped to contract-bearing paths** (`contracts/`, `catalog/`, `compatibility/`, `templates/`). `evidence/`, `execution-prompts/`, and the root governing documents must be outside the scanned scope **by construction**, not by an ignore-list. An ignore-list would require a new exception on every evidence write — a gate that weakens monotonically as the milestone progresses, which `HARNESS.md` §7 and EP-05 both forbid.
+
+#### D.4.3 C1 per-file classification (multi-tenancy)
+
+All 42 C1 matches at `f15a44c`, by file:
+
+```bash
+$ git grep -c -I -E -i 'tenant' f15a44c
+```
+
+| File | Matches | Classification |
+|---|---:|---|
+| `PROMPT.md` | 11 | prohibition prose |
+| `evidence/01-preflight.md` | 12 | prohibition prose / self-record |
+| `TEST_PLAN.md` | 5 | prohibition prose |
+| `HARNESS.md` | 3 | prohibition prose |
+| `ACCEPTANCE_CRITERIA.md`, `ARCHITECTURE_COMPLIANCE_MATRIX.md`, `AUDITOR.md`, `CONTRACT_STANDARD.md`, `CROSS_REPO_COMPATIBILITY.md`, `DELIVERY_REPORT.md`, `M0_MANIFEST.md` | 1 each | prohibition prose |
+| `execution-prompts/EP-00, EP-01, EP-02, EP-05` | 1 each | prohibition prose |
+
+**42 of 42 are governance prose forbidding the construct. Zero are tenant identifiers, headers, contexts, scopes, routing, or storage semantics.** The entire +6 delta versus Run 2 originates from this document.
+
+This is an observation of absence, not a `PASS` — see §6.
+
+### D.5 Secret-shaped pattern scan
+
+```bash
+$ git grep -n -I -E -i 'AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|xox[baprs]-|ghp_[A-Za-z0-9]{36}|sk-[A-Za-z0-9]{32}|postgres(ql)?://[^ ]*:[^ ]*@' f15a44c
+```
+
+Exit `1` — **no match**, unchanged from Run 2. This is a hand-written grep, **not** the `detect-secrets` gate EP-05 must deliver. `M0-CON-034` stays `NOT RUN` (finding 8).
+
+### D.6 Toolchain re-inventory
+
+| Tool | Version | Status | Δ vs Run 2 |
+|---|---|---|---|
+| `git` | 2.55.0 | present | — |
+| `python3` | 3.12.2 | present | — |
+| `pip3` | 25.2 | present | — |
+| `uv` | 0.6.14 | present | — |
+| `node` | v26.4.0 | present | — |
+| `npm` | 11.17.0 | present | — |
+| `docker` | 29.6.1 | present | — |
+| `shasum` | 6.02 | present | — |
+| `gh` | 2.96.0 | present | **newly recorded** (not inventoried in Runs 1–2) |
+| `jq` | — | **absent** | — |
+| `gitleaks` | — | **absent** | — |
+| `trivy` | — | **absent** | — |
+
+Git identity `siansoft <siansoft@gmail.com>`; `init.defaultBranch` still unset. The `detect-secrets` / `pip-audit` substitution recorded in §5 stands — `gitleaks` and `trivy` remain absent across all three runs.
+
+### D.7 Blob hashes at `f15a44c`
+
+```bash
+git ls-tree -r --name-only f15a44c |
+while IFS= read -r file; do
+    hash="$(git show "f15a44c:$file" | shasum -a 256 | awk '{print $1}')"
+    printf '%s  %s\n' "$hash" "$file"
+done
+```
+
+Exit `0`. 28 files hashed, then diffed against a freshly recomputed `m0-ep00-baseline` table.
+
+**26 of 28 blobs are byte-identical to the §4 baseline table** — independently reproducing §4.1's result a second time, and confirming that no governing document, execution prompt, or `.gitignore` has been altered since commit A. The two that differ are the evidence files touched by commits B and C:
+
+| Artifact | SHA-256 at `f15a44c` | Note |
+|---|---|---|
+| `evidence/01-preflight.md` § | `050e2933aa3addaff9236c7c0084d72120dffd8507c043da469e884cb5c9f737` | Run 2 revision |
+| `evidence/EVIDENCE_INDEX.md` | `6e9c8198deaf85bbfa5d46bd1ec499a609cc479710d8afe66e6f7eb5af69eac4` | Run 2 status row |
+
+§ Same self-reference constraint as §4 and §4.2: this is the digest of the document **as Run 3 observed it**, before Section D was written. The revision you are reading is introduced in commit D and is deliberately **not** self-hashed. A document cannot contain its own digest.
+
+The `050e2933…` value is also the post-restore verification target in §D.1: after `git restore`, the working-tree file hashed to exactly this, proving the recovery was byte-exact rather than approximate.
+
+---
+
 ## 1. Conflict searches — Run 1 (executed against `m0-ep00-baseline`)
 
 Command form:
@@ -352,11 +585,21 @@ Per EP-00 instruction 4, each item is classified `remove` / `migrate-to-owner-re
 | Deployment / IaC | `retain` | None exists |
 | 11 root governing `.md` docs | `retain` | Seeded into the repository at commit A |
 | `execution-prompts/` (7 files) | `retain` | Seeded at commit A |
-| `evidence/` templates (9 files) | `replace` | This file replaced in commit B; the other 7 remain `NOT RUN` |
+| `evidence/` templates (9 files) | `replace` | This file replaced in commit B, extended in C and D; the other 7 remain `NOT RUN` |
 | pack `README.md` | `replace` | Repo `README.md` is an EP-01 deliverable |
 | `.DS_Store` | `remove` | Not committed; gitignored |
 
-**No item required `migrate-to-owner-repo`.** No material belonging to another of the frozen eight repositories was found.
+### 2.1 Items added by Run 3
+
+| Item | Classification | Action |
+|---|---|---|
+| `evidence/01-preflight.md` reverted to the commit-A template in the working tree (§D.1) | `replace` | **Restored** via `git restore` to the `f15a44c` blob (`050e2933…`, verified byte-exact), then extended with Section D |
+| `evidence/EVIDENCE_INDEX.md` reverted to the commit-A template | `replace` | Restored to `6e9c8198…`, then status row updated for Run 3 |
+| Untracked pack `README.md` present on disk (`e6283f0f…`) | `replace` | **No action in EP-00.** Left untracked and unstaged; authoring the repository `README.md` is an EP-01 deliverable (finding 3) |
+| `.DS_Store` on disk (6148 bytes) | `remove` | Still uncommitted; confirmed ignored by `.gitignore:6` |
+| `origin` unreachable (§D.2) | — | Not a repository-content conflict. Recorded as reopened finding 6; no remote action attempted |
+
+**No item required `migrate-to-owner-repo` in any of the three runs.** No material belonging to another of the frozen eight repositories was found at `13afef14`, `a29b4be`, or `f15a44c`.
 
 ## 3. Baseline inventory
 
@@ -481,30 +724,47 @@ This is recorded so a temporary implementation convenience cannot harden into th
 
 `M0-CON-010` is likewise `NOT RUN`: §C.2 confirms every canonical directory is still absent.
 
+**Run 3 does not change any status above either.** Run 3 added no scanner, no mutation test, and no contract artifact — it restored a reverted evidence file and re-observed. Three further temptations are recorded as rejected:
+
+- §D.4.1 proves *mechanically* that no C1–C9 match lies in a contract-bearing path. It proves this only because **no contract-bearing path exists** (§D.3). An empty set trivially contains no violation; that is not detection. `M0-CON-003` and `M0-CON-004` stay `NOT RUN`.
+- §D.7 reproduces 26 of 28 baseline blob hashes exactly. That is integrity verification of governance documents, not the release-manifest checksum machinery `M0-CON-038` requires. It stays `NOT RUN`.
+- §D.1 shows the evidence chain was restorable byte-exact from git. Recoverability is not enforcement; no criterion is upgraded by it.
+
+`M0-CON-010` remains `NOT RUN` at Run 3: §D.3 confirms all nine canonical directories are still absent in both the working tree and the git tree.
+
 ## 7. Unresolved findings
 
 **Blocking:** none.
 
 **Non-blocking, carried to EP-01:**
 
-1. Scanner path-scoping is mandatory (§1.1), and Run 2 widened it (§1.3): `evidence/` is a second false-positive source that **grows every time evidence is written**. Scoping must be positive (scan only contract-bearing paths), not an ignore-list.
+1. Scanner path-scoping is mandatory (§1.1); Run 2 widened it (§1.3) and Run 3 confirmed it a second time (§D.4.2): `evidence/` is a false-positive source that **grows every time evidence is written**, now demonstrably including second-order matches where one run quotes another's table. Scoping must be positive (scan only contract-bearing paths), not an ignore-list.
 2. `evidence/02-boundary.md` … `08-audit-verdict.md` remain `NOT RUN`.
-3. Repository `README.md` must be authored — the seeded pack `README.md` was excluded as pack-specific. Note `M0-CON-001` names the README as evidence, so this blocks that criterion.
+3. Repository `README.md` must be authored — the seeded pack `README.md` was excluded as pack-specific and is still present untracked at Run 3 (§D.1). Note `M0-CON-001` names the README as evidence, so this blocks that criterion.
 4. `M0-CON-001..005` require scanners and mutation tests before any `PASS` claim.
 5. AsyncAPI validator fidelity must be upgraded before the first AsyncAPI contract becomes active (§5.1).
-6. ~~Run 1's hash table was anchored to a tag that existed only locally, so no auditor could reproduce it from the remote.~~ **RESOLVED** — `m0-ep00-baseline` published to `origin` and confirmed at `13afef14…` in §C.1.
+6. **REOPENED at Run 3.** Run 2 closed this on the basis that `m0-ep00-baseline` was published to `origin`, making §4's hash table reproducible from a fresh clone. `git ls-remote origin` now exits `128` with `Repository not found` (§D.2), so that property cannot currently be demonstrated. Cause is indeterminate — deleted, renamed, or private-without-credentials are indistinguishable from the error. **Action required before delivery:** confirm the remote's true state and re-publish `m0-ep00-baseline` if needed. `M0-CON-043` expects evidence an auditor can reproduce; a local-only anchor is weaker than what Run 2 claimed.
 
 **Carried to EP-05 (recorded so they are not lost):**
 
-7. `jq`, `gitleaks`, and `trivy` are absent from the toolchain. The §5 decision substitutes `detect-secrets` and `pip-audit`; that substitution must be implemented and evidenced, not assumed.
-8. The §C.4 secret grep is a coarse observation, not a gate. It must not be cited as satisfying `M0-CON-034`.
+7. `jq`, `gitleaks`, and `trivy` are absent from the toolchain across all three runs. The §5 decision substitutes `detect-secrets` and `pip-audit`; that substitution must be implemented and evidenced, not assumed.
+8. The §C.4 / §D.5 secret grep is a coarse observation, not a gate. It must not be cited as satisfying `M0-CON-034`.
+
+**New at Run 3, carried to every subsequent EP:**
+
+9. **Evidence held only in the working tree is not durable.** This document was found reverted to its commit-A template — 37 lines against 510, with the entire Run 1 and Run 2 record absent from the checkout (§D.1). An ordinary `git restore`/`git checkout` is sufficient to erase it, and recovery was possible only because commits B and C already existed. **Only committed evidence is evidence.** EP-01 through EP-06 must commit each evidence file as it is produced rather than accumulating it in an uncommitted tree, and the EP-06 auditor must verify evidence against committed blobs rather than the working tree.
 
 ## 8. Exit condition
 
 `EP-00-PREFLIGHT.md` requires: *"A complete inventory exists and there is no unresolved ambiguity about what belongs in this repo for M0."*
 
-**Met, and re-verified.** Across two runs: repository identity, URL, branch, commit SHA, and clean working-tree status are recorded; all 28 files are inventoried and hashed at two committed anchors, with the Run 1 table independently reproduced byte-for-byte (§4.1); all ten conflict searches executed twice with real exit codes; every C1 match classified individually (§1.4); every category classified (§2). Ownership boundaries are unchanged — no material was found belonging to another of the frozen eight repositories, and no `migrate-to-owner-repo` action was required.
+**Met, and re-verified across three runs.** Repository identity, URL, branch, commit SHA, and working-tree status are recorded at each anchor — including Run 3's *non-clean* tree and its recovery (§D.1). All 28 files are inventoried and hashed at three committed anchors, with the Run 1 table independently reproduced byte-for-byte twice (§4.1, §D.7). All ten conflict searches were executed three times with real exit codes; every C1 match was classified individually (§1.4, §D.4.3); Run 3 additionally verified *mechanically* that no match falls inside a contract-bearing path (§D.4.1). Every category is classified (§2, §2.1). Ownership boundaries are unchanged across all three runs — no material was found belonging to another of the frozen eight repositories, and no `migrate-to-owner-repo` action was required at any anchor.
 
-The one substantive difference between runs is fully explained and is not repository drift: it is the evidence document matching its own recorded patterns (§1.3), which converts into a binding scanner-design constraint for EP-01 rather than a defect.
+Two differences between runs are fully explained and neither is repository drift:
+
+1. **Evidence self-matching** (§1.3, §D.4.2) — the document matches its own recorded patterns, now confirmed to compound across runs. This converts into a binding scanner-design constraint for EP-01 rather than a defect.
+2. **Evidence revert and remote loss** (§D.1, §D.2) — both are regressions in the *record*, not in repository content. The 26 unchanged governance blobs (§D.7) prove no contract-bearing or governing material was altered. Both are carried as findings 9 and 6.
+
+**Residual ambiguity:** none about repository content. One ambiguity remains about the *environment* — the state of `origin` (finding 6) — which does not affect what belongs in this repository for M0 but does affect auditor reproducibility and must be resolved before delivery.
 
 **EP-01 through EP-06 have not been executed.** No acceptance criterion is claimed as `PASS` anywhere in this document.
