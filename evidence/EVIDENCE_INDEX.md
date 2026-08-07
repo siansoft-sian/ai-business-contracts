@@ -5,7 +5,7 @@ All evidence files are templates until commands are actually executed in the tar
 | File | Purpose | Current status |
 |---|---|---|
 | `01-preflight.md` | starting repository state and conflict inventory | COMPLETE (inventory) — Run 1 @ `m0-ep00-baseline`, Run 2 @ `a29b4be`, Run 3 @ `f15a44c` |
-| `02-boundary.md` | no-implementation/no-multitenancy enforcement | NOT RUN |
+| `02-boundary.md` | no-implementation/no-multitenancy enforcement | COMPLETE (enforced) — EP-01 @ `f8f0d38`; M0-CON-002 NOT RUN |
 | `03-contract-validation.md` | schemas, examples, refs, catalog | NOT RUN |
 | `04-compatibility.md` | compatible/breaking/review-required fixtures | NOT RUN |
 | `05-quality-security.md` | local gate, CI, security/dependency scans | NOT RUN |
