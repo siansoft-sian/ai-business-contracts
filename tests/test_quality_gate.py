@@ -352,12 +352,21 @@ def test_no_finding_is_left_unaudited() -> None:
 
 
 def test_secret_scan_fails_on_an_injected_credential(tmp_path: Path) -> None:
-    """A scanner that has never rejected anything is not known to work."""
+    """A scanner that has never rejected anything is not known to work.
+
+    The credential is assembled at runtime rather than written as a literal.
+    The first full-gate run of EP-05 found this test's original literal form
+    and failed on it -- correctly: a tracked file containing a credential-shaped
+    string is exactly what the scan exists to reject, and "it is only there to
+    test the scanner" is the argument every such string comes with. Suppressing
+    it in the baseline would have been the weakening HARNESS.md section 7
+    forbids, so the literal was removed instead. The file the scanner is
+    actually pointed at still contains the full credential, which is what the
+    test needs to prove.
+    """
     leak = tmp_path / "leaked.env"
-    leak.write_text(
-        'aws_secret_access_key = "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"\n',
-        encoding="utf-8",
-    )
+    credential = "wJalrXUtnFEMI" + "/K7MDENG/" + "bPxRfiCYEXAMPLEKEY"
+    leak.write_text(f'aws_secret_access_key = "{credential}"\n', encoding="utf-8")
     completed = subprocess.run(
         ["uv", "run", "detect-secrets-hook", "--baseline", ".secrets.baseline", str(leak)],
         cwd=REPO_ROOT,

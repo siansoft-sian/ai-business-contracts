@@ -1,0 +1,449 @@
+{
+  "artifacts": [
+    {
+      "path": "dist/ai-business-contracts-0.1.0.tar.gz",
+      "sha256": "1b81d27db31469752517f140a3b95dd9201b2b065bc0ffc325ca37e5e022dbdc"
+    },
+    {
+      "path": "dist/contract-manifest.json",
+      "sha256": "74e97707698b7578782db9e59a96dcc217eb62631856fd6cae1ae94f537b4492"
+    },
+    {
+      "path": "dist/SHA256SUMS",
+      "sha256": "23b5f23026412e6852939e1635cdcfd11cf3faa4ef37f38a5f68f31d81b8de87"
+    },
+    {
+      "path": "dist/compatibility-summary.json",
+      "sha256": "5810570dc60987e349e93608fab5e7e4cbcea689a69691b51a2b6e7254a716cb"
+    },
+    {
+      "path": "dist/example-consumer-lock.yaml",
+      "sha256": "ad554038eca458bf636ca8017ad6030903d5d9af3b05f2b69bf0a23b73c25245"
+    }
+  ],
+  "commit_sha": "749f029a66f7da09c86ee49e249d7b07a645c3d2",
+  "criteria": [
+    {
+      "derived_from": [
+        "check_no_implementation_code",
+        "pytest"
+      ],
+      "id": "M0-CON-001",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "validate_matrix",
+        "pytest"
+      ],
+      "id": "M0-CON-002",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "check_no_multitenancy",
+        "pytest"
+      ],
+      "id": "M0-CON-003",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "check_no_implementation_code",
+        "pytest"
+      ],
+      "id": "M0-CON-004",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "check_no_implementation_code",
+        "pytest"
+      ],
+      "id": "M0-CON-005",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "pytest"
+      ],
+      "id": "M0-CON-010",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "validate_contracts",
+        "validate_examples",
+        "pytest"
+      ],
+      "id": "M0-CON-011",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "validate_contracts",
+        "validate_examples",
+        "pytest"
+      ],
+      "id": "M0-CON-012",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "validate_contracts",
+        "validate_examples",
+        "pytest"
+      ],
+      "id": "M0-CON-013",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "validate_contracts",
+        "validate_catalog",
+        "pytest"
+      ],
+      "id": "M0-CON-014",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "validate_catalog",
+        "pytest"
+      ],
+      "id": "M0-CON-015",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "check_references",
+        "pytest"
+      ],
+      "id": "M0-CON-016",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "validate_examples",
+        "pytest"
+      ],
+      "id": "M0-CON-017",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "pytest"
+      ],
+      "id": "M0-CON-020",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "pytest"
+      ],
+      "id": "M0-CON-021",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "pytest"
+      ],
+      "id": "M0-CON-022",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "validate_contracts",
+        "pytest"
+      ],
+      "id": "M0-CON-023",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "check_compatibility",
+        "pytest"
+      ],
+      "id": "M0-CON-024",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "check_compatibility",
+        "pytest"
+      ],
+      "id": "M0-CON-025",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "check_compatibility",
+        "pytest"
+      ],
+      "id": "M0-CON-026",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "check_compatibility",
+        "pytest"
+      ],
+      "id": "M0-CON-027",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "check_compatibility",
+        "pytest"
+      ],
+      "id": "M0-CON-028",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "check_compatibility",
+        "pytest"
+      ],
+      "id": "M0-CON-029",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "quality_gate"
+      ],
+      "id": "M0-CON-030",
+      "note": "quality_gate exited non-zero",
+      "status": "fail"
+    },
+    {
+      "derived_from": [
+        "pytest"
+      ],
+      "id": "M0-CON-031",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "ruff_format",
+        "ruff_lint",
+        "mypy"
+      ],
+      "id": "M0-CON-032",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "pytest"
+      ],
+      "id": "M0-CON-033",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "secret_scan"
+      ],
+      "id": "M0-CON-034",
+      "note": "secret_scan exited non-zero",
+      "status": "fail"
+    },
+    {
+      "derived_from": [
+        "dependency_audit",
+        "pytest"
+      ],
+      "id": "M0-CON-035",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "build_bundle",
+        "verify_bundle",
+        "pytest"
+      ],
+      "id": "M0-CON-036",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "verify_bundle",
+        "pytest"
+      ],
+      "id": "M0-CON-037",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "verify_bundle"
+      ],
+      "id": "M0-CON-038",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "validate_matrix",
+        "pytest"
+      ],
+      "id": "M0-CON-040",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "build_bundle",
+        "verify_consumer_lock"
+      ],
+      "id": "M0-CON-041",
+      "status": "pass"
+    },
+    {
+      "derived_from": [
+        "verify_consumer_lock",
+        "pytest"
+      ],
+      "id": "M0-CON-042",
+      "status": "pass"
+    },
+    {
+      "derived_from": [],
+      "id": "M0-CON-043",
+      "note": "Evidence-file audit is performed by EP-06; no gate check inspects evidence prose.",
+      "status": "not_run"
+    },
+    {
+      "derived_from": [],
+      "id": "M0-CON-044",
+      "note": "The AUDITOR.md read-only audit is an EP-06 activity and is not a gate check.",
+      "status": "not_run"
+    },
+    {
+      "derived_from": [],
+      "id": "M0-CON-045",
+      "note": "DELIVERY_REPORT.md is completed from evidence in EP-06.",
+      "status": "not_run"
+    }
+  ],
+  "criteria_summary": {
+    "fail": 2,
+    "not_run": 3,
+    "pass": 33,
+    "total": 38
+  },
+  "generated_at_utc": "2026-08-07T20:58:44Z",
+  "milestone": "M0",
+  "milestone_verdict": "not_complete",
+  "quality_gate": {
+    "checks": [
+      {
+        "command": "uv run ruff format --check .",
+        "exit_code": 0,
+        "name": "ruff_format",
+        "status": "pass"
+      },
+      {
+        "command": "uv run ruff check .",
+        "exit_code": 0,
+        "name": "ruff_lint",
+        "status": "pass"
+      },
+      {
+        "command": "uv run mypy",
+        "exit_code": 0,
+        "name": "mypy",
+        "status": "pass"
+      },
+      {
+        "command": "uv run pytest -q",
+        "exit_code": 0,
+        "name": "pytest",
+        "status": "pass"
+      },
+      {
+        "command": "uv run python scripts/validate_contracts.py",
+        "exit_code": 0,
+        "name": "validate_contracts",
+        "status": "pass"
+      },
+      {
+        "command": "uv run python scripts/check_references.py",
+        "exit_code": 0,
+        "name": "check_references",
+        "status": "pass"
+      },
+      {
+        "command": "uv run python scripts/validate_examples.py",
+        "exit_code": 0,
+        "name": "validate_examples",
+        "status": "pass"
+      },
+      {
+        "command": "uv run python scripts/validate_catalog.py",
+        "exit_code": 0,
+        "name": "validate_catalog",
+        "status": "pass"
+      },
+      {
+        "command": "uv run python scripts/validate_matrix.py",
+        "exit_code": 0,
+        "name": "validate_matrix",
+        "status": "pass"
+      },
+      {
+        "command": "uv run python scripts/check_compatibility.py --output dist/compatibility-summary.json",
+        "exit_code": 0,
+        "name": "check_compatibility",
+        "status": "pass"
+      },
+      {
+        "command": "uv run python scripts/check_no_multitenancy.py",
+        "exit_code": 0,
+        "name": "check_no_multitenancy",
+        "status": "pass"
+      },
+      {
+        "command": "uv run python scripts/check_no_implementation_code.py",
+        "exit_code": 0,
+        "name": "check_no_implementation_code",
+        "status": "pass"
+      },
+      {
+        "command": "bash -c git\\ ls-files\\ -z\\ \\|\\ xargs\\ -0\\ uv\\ run\\ detect-secrets-hook\\ --baseline\\ .secrets.baseline",
+        "exit_code": 1,
+        "name": "secret_scan",
+        "status": "fail"
+      },
+      {
+        "command": "uv run pip-audit --progress-spinner=off --strict",
+        "exit_code": 0,
+        "name": "dependency_audit",
+        "status": "pass"
+      },
+      {
+        "command": "uv run python scripts/build_bundle.py",
+        "exit_code": 0,
+        "name": "build_bundle",
+        "status": "pass"
+      },
+      {
+        "command": "uv run python scripts/verify_bundle.py",
+        "exit_code": 0,
+        "name": "verify_bundle",
+        "status": "pass"
+      },
+      {
+        "command": "uv run python scripts/verify_consumer_lock.py --lock dist/example-consumer-lock.yaml --manifest dist/contract-manifest.json --verify-manifest-digest",
+        "exit_code": 0,
+        "name": "verify_consumer_lock",
+        "status": "pass"
+      },
+      {
+        "command": "scripts/quality_gate.sh",
+        "exit_code": 1,
+        "name": "quality_gate",
+        "status": "fail"
+      }
+    ],
+    "result": "fail",
+    "skipped": []
+  },
+  "repository": "ai-business-contracts",
+  "working_tree_clean": true
+}
