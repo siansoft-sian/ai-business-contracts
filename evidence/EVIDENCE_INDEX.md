@@ -2,9 +2,9 @@
 
 All evidence files are templates until commands are actually executed in the target repository.
 
-| File | Purpose | Initial status |
+| File | Purpose | Current status |
 |---|---|---|
-| `01-preflight.md` | starting repository state and conflict inventory | NOT RUN |
+| `01-preflight.md` | starting repository state and conflict inventory | COMPLETE (inventory) — baseline `m0-ep00-baseline` |
 | `02-boundary.md` | no-implementation/no-multitenancy enforcement | NOT RUN |
 | `03-contract-validation.md` | schemas, examples, refs, catalog | NOT RUN |
 | `04-compatibility.md` | compatible/breaking/review-required fixtures | NOT RUN |
