@@ -106,10 +106,11 @@ run check_no_multitenancy      $PY scripts/check_no_multitenancy.py
 run check_no_implementation_code $PY scripts/check_no_implementation_code.py
 
 # --- Stage 6: security ---------------------------------------------------
-# detect-secrets-hook compares tracked files against the audited baseline and
-# fails on any finding the baseline does not already account for. Findings are
-# blocking; see SECURITY.md for the triage rules.
-run secret_scan bash -c 'git ls-files -z | xargs -0 uv run detect-secrets-hook --baseline .secrets.baseline'
+# check_secrets.py runs detect-secrets over every tracked file and then
+# triages: a finding is discarded only if it sits on a checksum or commit-SHA
+# assignment, which this repository is required to contain. Everything else is
+# blocking. See SECURITY.md for the rules.
+run secret_scan $PY scripts/check_secrets.py
 
 # pip-audit resolves advisories over the network. An audit that cannot reach
 # the advisory database has not been performed, and reporting it as passing

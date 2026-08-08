@@ -38,32 +38,69 @@ All of these run inside `scripts/quality_gate.sh`, which CI invokes unchanged.
 A blocking gate is never weakened to obtain a green result. If a gate cannot
 pass, the milestone is reported as blocked.
 
-## Secret scan: findings and the baseline
+## Secret scan: findings, the digest rule, and the baseline
 
-The gate runs `detect-secrets-hook` over every tracked file against
-`.secrets.baseline`. **Any finding the baseline does not already account for
-fails the build.** There is no warn-only mode.
+`scripts/check_secrets.py` runs `detect-secrets` over every tracked file.
+**Any finding that is not explained fails the build.** There is no warn-only
+mode.
+
+A finding is explained in exactly one of two ways.
+
+### 1. The digest rule
+
+This repository is *required* to contain high-entropy hex strings. The release
+manifest is built from SHA-256 checksums, contract examples declare them, and a
+consumer lock is meaningless without them. An entropy detector cannot tell a
+checksum from a credential, and it should not try.
+
+So a finding is discarded only when the line it sits on assigns a value of
+40–64 lowercase hex characters to a field whose name ends in `sha256` or is
+`commit_sha`. Both halves matter: naming a field `api_sha256` does not launder
+a credential, because the value must still have the shape of a digest, and a
+bare hex string with no digest field name stays blocking.
+
+This is checked on **every run**, not recorded once. The alternative — a
+baseline entry per finding — rots: baseline entries are keyed by line number,
+and `evidence/m0-summary.json` is regenerated on every gate run with digests
+that move. Re-baselining each run would be auto-suppression wearing a
+baseline's clothes.
+
+`tests/test_quality_gate.py` proves the rule both ways: digest assignments are
+exempt, and the same hex string as an `api_key`, a `token`, a bare value, or
+inside prose is not.
+
+### 2. The reviewed baseline
 
 `.secrets.baseline` is the approved false-positive mechanism required by
-`HARNESS.md` section 9. Rules for using it:
+`HARNESS.md` section 9, for anything the digest rule does not cover. It is
+currently **empty**, which is the honest state: every real finding here is a
+checksum or a commit SHA. Rules for using it:
 
 1. A finding may be recorded as `is_secret: false` **only after** it has been
    inspected and shown not to be a credential.
-2. Every entry must be audited. An entry with no `is_secret` verdict is an
-   unreviewed suppression and is treated as a defect.
-3. The suppression claim is itself verified.
-   `tests/test_quality_gate.py::test_every_suppressed_finding_is_provably_a_digest_not_a_secret`
-   re-reads each suppressed line and requires it to be an assignment of a
-   SHA-256 checksum or a commit SHA — values that are digests by contract.
-   A suppression on any other kind of line fails the test.
+2. An entry with no `is_secret` verdict is an unreviewed suppression and is not
+   honoured — `check_secrets.py` ignores it and the finding stays blocking.
+3. Entries are matched by `(filename, hashed_secret)`, not by line number, so
+   reflowing a file does not resurrect a reviewed finding.
 4. `pragma: allowlist secret` inline comments are not used. An inline
-   suppression is invisible to review; a baseline entry is a reviewable diff.
+   suppression is invisible in review; a baseline entry is a reviewable diff.
 
-The current baseline contains only checksum and commit-SHA fields inside
-contract examples and cross-repository lock fixtures. Those are integrity
-values that contracts require to be present — the release manifest and consumer
-lock schemas both declare them — so removing them is not an option, and
-suppressing them is verified rather than asserted.
+The baseline file itself is not scanned. It stores SHA-1 *hashes* of findings
+rather than the findings — that is the point of the format — and scanning it
+would flag the record of a reviewed finding, making the mechanism unusable the
+moment it was used.
+
+### Writing tests about secrets
+
+A live secret scan constrains its own test suite: a tracked file containing a
+credential-shaped literal is exactly what the scan rejects, and "it is only
+there to test the scanner" is the justification every such string arrives with.
+Test credentials and digest witnesses are therefore **assembled at runtime**,
+never written as literals. The file the scanner is pointed at still contains
+the real value, so the proof is unchanged.
+
+If the scanner cannot run at all, `check_secrets.py` exits `2` and the gate
+fails. A scan that did not happen has not passed.
 
 ## Dependency vulnerability audit: blocking policy
 

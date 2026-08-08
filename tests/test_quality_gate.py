@@ -12,8 +12,8 @@ mention the individual tools at all.
 
 from __future__ import annotations
 
+import hashlib
 import json
-import subprocess
 import sys
 from pathlib import Path
 
@@ -24,6 +24,7 @@ from conftest import REPO_ROOT, SCRIPTS_DIR
 
 sys.path.insert(0, str(SCRIPTS_DIR))
 
+import check_secrets  # noqa: E402
 import write_evidence_summary  # noqa: E402
 from write_evidence_summary import CRITERION_EVIDENCE  # noqa: E402
 
@@ -46,7 +47,7 @@ REQUIRED_GATE_CHECKS: dict[str, str] = {
     "compatibility validation": "check_compatibility.py",
     "multi-tenancy negative scan": "check_no_multitenancy.py",
     "implementation-boundary scan": "check_no_implementation_code.py",
-    "secret scan": "detect-secrets-hook",
+    "secret scan": "check_secrets.py",
     "dependency vulnerability audit": "pip-audit",
     "bundle/manifest validation": "verify_bundle.py",
 }
@@ -301,78 +302,126 @@ def test_an_empty_or_missing_check_record_is_refused(tmp_path: Path) -> None:
     assert write_evidence_summary.main(["--root", str(REPO_ROOT), "--checks", str(empty)]) == 1
 
 
-# --- the secret-scan baseline ---------------------------------------------
+# --- the secret scan and its digest exemption -----------------------------
 
 
 BASELINE = REPO_ROOT / ".secrets.baseline"
 
 
-def test_secret_baseline_exists() -> None:
-    assert BASELINE.is_file(), "the approved baseline mechanism must exist to be usable"
+def test_secret_baseline_exists_as_the_review_mechanism() -> None:
+    """HARNESS.md section 9 requires an approved false-positive mechanism.
 
-
-def test_every_suppressed_finding_is_provably_a_digest_not_a_secret() -> None:
-    """The baseline's "not a secret" claim is verified, not taken on trust.
-
-    A baseline is the standard way to record verified false positives, and also
-    the standard way to bury a real one. Every entry marked ``is_secret: false``
-    must sit on a line that assigns a checksum or a commit SHA -- a field whose
-    value is a digest by contract. Anything else stays blocking.
+    It is currently empty, which is the honest state: every real finding in
+    this repository is explained by the digest rule, so nothing needs a
+    per-finding suppression. The file exists so that a future false positive
+    the rule does not cover has a reviewable home.
     """
-    import re
+    baseline = json.loads(BASELINE.read_text(encoding="utf-8"))
+    assert "plugins_used" in baseline
+    assert isinstance(baseline.get("results"), dict)
 
-    digest_line = re.compile(
-        r'^\s*[-"]?\s*"?(?P<key>[A-Za-z_]*(?:sha256|commit_sha))"?\s*[:=]\s*"?[0-9a-f]{40,64}"?,?\s*$'
+
+def test_unreviewed_baseline_entries_are_not_honoured(tmp_path: Path) -> None:
+    """An entry with no verdict is an unreviewed suppression, not an approval."""
+    (tmp_path / ".secrets.baseline").write_text(
+        json.dumps({"results": {"a.txt": [{"hashed_secret": "abc"}]}}),
+        encoding="utf-8",
     )
-    baseline = json.loads(BASELINE.read_text(encoding="utf-8"))
+    assert check_secrets.load_reviewed(tmp_path) == set()
 
-    suppressed = 0
-    for filename, findings in baseline["results"].items():
-        lines = (REPO_ROOT / filename).read_text(encoding="utf-8").splitlines()
-        for finding in findings:
-            if finding.get("is_secret") is not False:
-                continue
-            suppressed += 1
-            line = lines[finding["line_number"] - 1]
-            assert digest_line.match(line), (
-                f"{filename}:{finding['line_number']} is marked not-a-secret but is not a "
-                f"checksum or commit-SHA assignment: {line.strip()!r}"
-            )
-    assert suppressed > 0, "no suppressions to verify; drop this test if the baseline is empty"
+    (tmp_path / ".secrets.baseline").write_text(
+        json.dumps({"results": {"a.txt": [{"hashed_secret": "abc", "is_secret": False}]}}),
+        encoding="utf-8",
+    )
+    assert check_secrets.load_reviewed(tmp_path) == {("a.txt", "abc")}
 
 
-def test_no_finding_is_left_unaudited() -> None:
-    """An unaudited entry is an unreviewed suppression."""
-    baseline = json.loads(BASELINE.read_text(encoding="utf-8"))
-    for filename, findings in baseline["results"].items():
-        for finding in findings:
-            assert "is_secret" in finding, (
-                f"{filename}:{finding['line_number']} is in the baseline but was never audited"
-            )
+#: Witness values derived at import rather than written as literals. A tracked
+#: line holding a bare digest or a credential is precisely what the scan
+#: rejects, so the tests for the exemption rule cannot state their own inputs
+#: literally -- the first EP-05 gate run proved that by failing on exactly such
+#: a line. Deriving them keeps the source clean while the strings the rule is
+#: tested against remain real.
+DIGEST = hashlib.sha256(b"digest-witness").hexdigest()
+SHORT_DIGEST = hashlib.sha1(b"commit-witness").hexdigest()
+CREDENTIAL = "wJalrXUtnFEMI" + "/K7MDENG/" + "bPxRfiCYEXAMPLEKEY"
+
+EXEMPT_LINES: list[str] = [
+    f'  "sha256": "{DIGEST}"',
+    f'  "bundle_sha256": "{DIGEST}",',
+    f'    manifest_sha256: "{SHORT_DIGEST}"',
+    f'  "commit_sha": "{SHORT_DIGEST}",',
+    f"    - source_sha256: {DIGEST}",
+]
+
+BLOCKING_LINES: list[str] = [
+    f'  "api_key": "{DIGEST}"',
+    f'  "token": "{SHORT_DIGEST}"',
+    f"  {DIGEST}",
+    f'  "sha256_note": "see {DIGEST}"',
+    '  "pass' + 'word": "hunter2"',
+]
+
+
+@pytest.mark.parametrize("line", EXEMPT_LINES)
+def test_digest_assignments_are_exempt(line: str) -> None:
+    """The values the contracts require to be present."""
+    assert check_secrets.is_digest_line(line)
+
+
+@pytest.mark.parametrize("line", BLOCKING_LINES)
+def test_the_exemption_does_not_widen_beyond_digest_fields(line: str) -> None:
+    """The same hex string in any other position stays blocking.
+
+    This is what stops the rule from becoming "high-entropy hex is fine".
+    """
+    assert not check_secrets.is_digest_line(line)
+
+
+def test_repository_scan_is_clean() -> None:
+    """The gate's own invocation, run in-process."""
+    assert check_secrets.main(["--root", str(REPO_ROOT)]) == 0
 
 
 def test_secret_scan_fails_on_an_injected_credential(tmp_path: Path) -> None:
     """A scanner that has never rejected anything is not known to work.
 
     The credential is assembled at runtime rather than written as a literal.
-    The first full-gate run of EP-05 found this test's original literal form
-    and failed on it -- correctly: a tracked file containing a credential-shaped
-    string is exactly what the scan exists to reject, and "it is only there to
-    test the scanner" is the argument every such string comes with. Suppressing
-    it in the baseline would have been the weakening HARNESS.md section 7
-    forbids, so the literal was removed instead. The file the scanner is
-    actually pointed at still contains the full credential, which is what the
-    test needs to prove.
+    The first full-gate run of EP-05 failed on this test's original literal
+    form -- correctly: a tracked file holding a credential-shaped string is
+    exactly what the scan exists to reject, and "it is only there to test the
+    scanner" is the justification every such string arrives with. Baselining it
+    would have been the weakening HARNESS.md section 7 forbids, so the literal
+    was removed instead. The file the scanner is pointed at still contains the
+    full credential, so the proof is unchanged.
     """
     leak = tmp_path / "leaked.env"
-    credential = "wJalrXUtnFEMI" + "/K7MDENG/" + "bPxRfiCYEXAMPLEKEY"
-    leak.write_text(f'aws_secret_access_key = "{credential}"\n', encoding="utf-8")
-    completed = subprocess.run(
-        ["uv", "run", "detect-secrets-hook", "--baseline", ".secrets.baseline", str(leak)],
-        cwd=REPO_ROOT,
-        capture_output=True,
-        text=True,
-    )
-    assert completed.returncode == 1, (
-        f"the secret scan accepted a credential: {completed.stdout}{completed.stderr}"
-    )
+    leak.write_text(f'aws_secret_access_key = "{CREDENTIAL}"\n', encoding="utf-8")
+
+    results = check_secrets.run_scan(tmp_path, [leak.name])
+    violations, digests, baselined = check_secrets.triage(tmp_path, results, set())
+
+    assert violations, "the scan accepted a credential"
+    assert digests == 0 and baselined == 0, "a credential must not be explained away"
+
+
+def test_a_credential_hidden_in_a_digest_shaped_field_is_still_caught(tmp_path: Path) -> None:
+    """The exemption keys on the value's shape as well as the field's name.
+
+    Naming a field ``api_sha256`` must not launder a credential through the
+    rule: the value still has to be 40-64 lowercase hex characters.
+    """
+    leak = tmp_path / "leaked.yaml"
+    leak.write_text(f'aws_sha256 = "{CREDENTIAL}"\n', encoding="utf-8")
+
+    results = check_secrets.run_scan(tmp_path, [leak.name])
+    violations, _, _ = check_secrets.triage(tmp_path, results, set())
+    assert violations, "a credential in a sha256-named field was exempted"
+
+
+def test_a_scanner_that_cannot_run_is_not_reported_as_passing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Exit 2, not 0. An audit that did not happen has not passed."""
+    monkeypatch.setattr("check_secrets.shutil.which", lambda _name: None)
+    assert check_secrets.main(["--root", str(REPO_ROOT)]) == 2
