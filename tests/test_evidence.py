@@ -79,6 +79,20 @@ def test_a_report_reverted_to_its_template_is_rejected(evidence_clone: Path) -> 
     assert "not-run" in _patterns(evidence_clone)
 
 
+def test_a_not_run_status_below_the_first_heading_is_still_caught(evidence_clone: Path) -> None:
+    """Reading only the first status heading would miss a partial revert.
+
+    A report can open with COMPLETE and carry an unpopulated section further
+    down; that is exactly the shape a half-reverted file takes.
+    """
+    path = evidence_clone / "evidence" / "02-boundary.md"
+    path.write_text(
+        path.read_text(encoding="utf-8") + "\n## Appendix\n\nStatus: **NOT RUN**\n",
+        encoding="utf-8",
+    )
+    assert "not-run" in _patterns(evidence_clone)
+
+
 def test_a_missing_report_is_rejected(evidence_clone: Path) -> None:
     (evidence_clone / "evidence" / "03-contract-validation.md").unlink()
     assert "missing-report" in _patterns(evidence_clone)

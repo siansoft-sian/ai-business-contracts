@@ -124,18 +124,23 @@ def check_report(root: Path, relative: str, text: str, head: str) -> tuple[list[
     """Check one evidence report. Returns defects and verified-digest count."""
     defects: list[Violation] = []
 
-    status = STATUS_LINE.search(text)
-    if status is None:
+    # Every status heading is checked, not just the first. Reading only the
+    # first would let a report open with COMPLETE and carry a NOT RUN heading
+    # further down, which is precisely the shape a partially-reverted or
+    # partially-populated report takes.
+    statuses = [match.group("status").strip() for match in STATUS_LINE.finditer(text)]
+    if not statuses:
         defects.append(_defect(relative, "no-status", "no '**Status:**' line; the report is unpopulated"))
-    elif "NOT RUN" in status.group("status").upper():
-        defects.append(
-            _defect(
-                relative,
-                "not-run",
-                f"status is {status.group('status').strip()!r}; ACCEPTANCE_CRITERIA.md treats "
-                "NOT RUN as FAIL for milestone completion",
+    for status in statuses:
+        if "NOT RUN" in status.upper():
+            defects.append(
+                _defect(
+                    relative,
+                    "not-run",
+                    f"status is {status!r}; ACCEPTANCE_CRITERIA.md treats NOT RUN as FAIL for "
+                    "milestone completion",
+                )
             )
-        )
 
     for placeholder in PLACEHOLDERS:
         if placeholder in text:
