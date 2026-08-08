@@ -2,26 +2,26 @@
   "artifacts": [
     {
       "path": "dist/ai-business-contracts-0.1.0.tar.gz",
-      "sha256": "dd74751633931479e906974b892624ea44a83fc9c13806817bef1cbe04f4b0c9"
+      "sha256": "3a8acccaed00bec1cbc3f764f088721be25c524a0c0d6e5fa2b97fa12422bc35"
     },
     {
       "path": "dist/contract-manifest.json",
-      "sha256": "721934e82ef70b0f96f1733a165ba9faa5632ad9c95bb66ebb4b171b716a8e41"
+      "sha256": "e5fdb3bafcdc0bcc4ef80cfd7d25ec9a96bab6105ba1dc8a997b8fc8488b6641"
     },
     {
       "path": "dist/SHA256SUMS",
-      "sha256": "8de7de2cd0fa6e83d32f3e7debd042c15689c2342e798aefc2c7b85dd74f3f6a"
+      "sha256": "93abbe0907357191ab3968af0446e4b339f00d1440966511f3c25e46897492f8"
     },
     {
       "path": "dist/compatibility-summary.json",
-      "sha256": "c0722ec03ab67362897b7fc0fee69a261674c16518fead796cefbde3c669b15c"
+      "sha256": "fe71d415beb4e107c436dfc0b7761e24ec661da62d641620bf56b49f5a7ccad4"
     },
     {
       "path": "dist/example-consumer-lock.yaml",
-      "sha256": "41d27a218af5816ccef460b512e05d6f3a5f1c7d2ad1daff9ab368ff85e694a7"
+      "sha256": "bd5f626211413448ee75ab0970078822e9f6c874973010751025a9120f2df846"
     }
   ],
-  "commit_sha": "1dfcdaa7664da21f06ad1287d673f1207a3667c2",
+  "commit_sha": "c6807ddc6cba08c5b532be7eb83246b9ddf95c16",
   "criteria": [
     {
       "derived_from": [
@@ -212,8 +212,7 @@
         "quality_gate"
       ],
       "id": "M0-CON-030",
-      "note": "quality_gate exited non-zero",
-      "status": "fail"
+      "status": "pass"
     },
     {
       "derived_from": [
@@ -243,8 +242,7 @@
         "secret_scan"
       ],
       "id": "M0-CON-034",
-      "note": "secret_scan exited non-zero",
-      "status": "fail"
+      "status": "pass"
     },
     {
       "derived_from": [
@@ -322,12 +320,12 @@
     }
   ],
   "criteria_summary": {
-    "fail": 2,
+    "fail": 0,
     "not_run": 3,
-    "pass": 33,
+    "pass": 35,
     "total": 38
   },
-  "generated_at_utc": "2026-08-07T21:00:26Z",
+  "generated_at_utc": "2026-08-08T16:14:34Z",
   "milestone": "M0",
   "milestone_verdict": "not_complete",
   "quality_gate": {
@@ -405,10 +403,10 @@
         "status": "pass"
       },
       {
-        "command": "bash -c git\\ ls-files\\ -z\\ \\|\\ xargs\\ -0\\ uv\\ run\\ detect-secrets-hook\\ --baseline\\ .secrets.baseline",
-        "exit_code": 1,
+        "command": "uv run python scripts/check_secrets.py",
+        "exit_code": 0,
         "name": "secret_scan",
-        "status": "fail"
+        "status": "pass"
       },
       {
         "command": "uv run pip-audit --progress-spinner=off --strict",
@@ -436,12 +434,12 @@
       },
       {
         "command": "scripts/quality_gate.sh",
-        "exit_code": 1,
+        "exit_code": 0,
         "name": "quality_gate",
-        "status": "fail"
+        "status": "pass"
       }
     ],
-    "result": "fail",
+    "result": "pass",
     "skipped": []
   },
   "repository": "ai-business-contracts",

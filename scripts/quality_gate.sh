@@ -99,7 +99,16 @@ run validate_matrix    $PY scripts/validate_matrix.py
 # --- Stage 4: compatibility ---------------------------------------------
 # Writes dist/compatibility-summary.json, which the release stage reads and
 # refuses to publish over a failing verdict.
-run check_compatibility $PY scripts/check_compatibility.py --output dist/compatibility-summary.json
+#
+# The stamped timestamp is the commit's, not the wall clock's, for the same
+# reason build_bundle.py uses it: SHA256SUMS covers this file, so a per-run
+# timestamp would make a release's own checksum record differ on every rebuild
+# and there would be nothing stable to verify a republished release against.
+# The wall-clock time the gate actually ran is recorded in
+# evidence/m0-summary.json, where it belongs.
+COMMIT_TIME="$(TZ=UTC git log -1 --date=format-local:%Y-%m-%dT%H:%M:%SZ --format=%cd)"
+run check_compatibility $PY scripts/check_compatibility.py \
+  --output dist/compatibility-summary.json --checked-at "$COMMIT_TIME"
 
 # --- Stage 5: boundary scans --------------------------------------------
 run check_no_multitenancy      $PY scripts/check_no_multitenancy.py

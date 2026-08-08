@@ -182,6 +182,18 @@ def test_bundle_member_selection_matches_the_declared_rule(built: Path) -> None:
 # --- checksums and the example lock ---------------------------------------
 
 
+def test_the_gate_stamps_the_compatibility_summary_from_the_commit(tmp_path: Path) -> None:
+    """SHA256SUMS covers the summary, so its timestamp must not be wall-clock.
+
+    A per-run timestamp would make a release's own checksum record differ on
+    every rebuild, leaving nothing stable to verify a republished release
+    against. The gate therefore passes --checked-at; this asserts it still does.
+    """
+    gate = (REPO_ROOT / "scripts" / "quality_gate.sh").read_text(encoding="utf-8")
+    assert "--checked-at" in gate
+    assert "git log -1" in gate, "the stamped time must come from the commit"
+
+
 def test_checksums_cover_every_published_artifact(built: Path) -> None:
     recorded = {}
     for line in (built / CHECKSUMS_NAME).read_text(encoding="utf-8").splitlines():
