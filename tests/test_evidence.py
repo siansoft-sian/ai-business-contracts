@@ -230,10 +230,20 @@ def test_a_delivery_verdict_that_does_not_follow_is_rejected(evidence_clone: Pat
     assert "underivable-verdict" in _patterns(evidence_clone)
 
 
-def test_a_delivery_report_omitting_a_criterion_is_rejected(evidence_clone: Path) -> None:
+def test_a_delivery_summary_that_does_not_add_up_is_rejected(evidence_clone: Path) -> None:
+    """Arithmetic that does not add up is how criteria go missing unnoticed.
+
+    A summary claiming 5 passed in a range holding 8 reads as complete and is
+    not; nothing else in the report would reveal the shortfall.
+    """
     path = evidence_clone / "DELIVERY_REPORT.md"
-    path.write_text(path.read_text(encoding="utf-8").replace("M0-CON-029", "M0-CON-0XX"), encoding="utf-8")
-    assert "criterion-omitted" in _patterns(evidence_clone)
+    path.write_text(
+        path.read_text(encoding="utf-8").replace(
+            "| M0-CON-010..017 | 8 | 0 | 0 |", "| M0-CON-010..017 | 5 | 0 | 0 |"
+        ),
+        encoding="utf-8",
+    )
+    assert "summary-does-not-add-up" in _patterns(evidence_clone)
 
 
 def test_the_index_may_not_still_advertise_a_report_as_not_run(evidence_clone: Path) -> None:

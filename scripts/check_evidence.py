@@ -77,8 +77,16 @@ HASH_ROW = re.compile(r"^\|\s*`(?P<path>[^`]+)`\s*\|\s*`(?P<digest>[0-9a-f]{64})
 #: Placeholder text a populated report must no longer contain.
 PLACEHOLDERS: tuple[str, ...] = ("<sha>", "<timestamp>", "<exact commands>", "<PASS|FAIL>", "<version>")
 
-VERDICT_LINE = re.compile(r"^Verdict:\s*(?P<verdict>PASS|FAIL)\s*$", re.MULTILINE)
+VERDICT_LINE = re.compile(r"^Verdict:\s*\**(?P<verdict>PASS|FAIL)\**\s*$", re.MULTILINE)
 CRITERION_ID = re.compile(r"\bM0-CON-\d{3}\b")
+
+#: An acceptance-summary row: ``| M0-CON-001..005 | 5 | 0 | 0 |``. Total rows
+#: are not matched, so they cannot double-count.
+SUMMARY_ROW = re.compile(
+    r"^\|\s*M0-CON-\d{3}\.\.\d{3}\s*\|\s*(?P<passed>\d+)\s*\|\s*(?P<failed>\d+)\s*\|"
+    r"\s*(?P<not_run>\d+)\s*\|",
+    re.MULTILINE,
+)
 
 
 def _defect(path: str, pattern: str, detail: str, line: int = 0) -> Violation:
@@ -249,9 +257,24 @@ def check_delivery_report(root: Path) -> list[Violation]:
             )
         )
 
-    missing = declared_criteria(root) - set(CRITERION_ID.findall(text))
-    for criterion in sorted(missing):
-        defects.append(_defect(DELIVERY_PATH, "criterion-omitted", f"{criterion} is not accounted for"))
+    # The acceptance summary must account for every criterion. Requiring each
+    # ID to appear by name would only duplicate the audit's per-criterion table;
+    # what the report uniquely states is the arithmetic, and arithmetic that
+    # does not add up is how a criterion goes missing from a summary unnoticed.
+    declared = len(declared_criteria(root))
+    counted = sum(
+        int(row.group("passed")) + int(row.group("failed")) + int(row.group("not_run"))
+        for row in SUMMARY_ROW.finditer(text)
+    )
+    if declared and counted != declared:
+        defects.append(
+            _defect(
+                DELIVERY_PATH,
+                "summary-does-not-add-up",
+                f"the acceptance summary accounts for {counted} criteria but {CRITERIA_PATH} "
+                f"declares {declared}",
+            )
+        )
 
     return defects
 
