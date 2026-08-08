@@ -764,6 +764,14 @@ This is recorded so a temporary implementation convenience cannot harden into th
 
 ## 6. Acceptance criteria status
 
+> **Snapshot, superseded.** The statuses below are as of this EP and are kept
+> unchanged as a historical record — several read `NOT RUN` because the check
+> that would establish them had not been built yet. They are **not** the
+> milestone's current state. The final per-criterion statuses are in
+> [`08-audit-verdict.md`](08-audit-verdict.md), and `evidence/m0-summary.json`
+> derives them mechanically from gate exit codes. At the delivery commit all 38
+> criteria pass.
+
 | Criterion | Status | Basis |
 |---|---|---|
 | `M0-CON-001` | **NOT RUN** — enforcement pending EP-01 | Repository purpose observed as contracts/governance only, but no boundary scanner exists yet |

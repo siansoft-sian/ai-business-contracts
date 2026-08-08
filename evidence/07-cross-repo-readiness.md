@@ -262,6 +262,14 @@ Examples: 13.
 
 ## 9. Acceptance criteria status
 
+> **Snapshot, superseded.** The statuses below are as of this EP and are kept
+> unchanged as a historical record — several read `NOT RUN` because the check
+> that would establish them had not been built yet. They are **not** the
+> milestone's current state. The final per-criterion statuses are in
+> [`08-audit-verdict.md`](08-audit-verdict.md), and `evidence/m0-summary.json`
+> derives them mechanically from gate exit codes. At the delivery commit all 38
+> criteria pass.
+
 | Criterion | Status | Basis |
 |---|---|---|
 | `M0-CON-002` | **PASS** | all three named evidence parts now exist: `governance/OWNERSHIP.md`, the validated catalog, and the platform matrix listing all eight repositories with responsibilities uncollapsed and each exclusive role held by exactly one repository |

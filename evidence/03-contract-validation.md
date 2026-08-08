@@ -289,6 +289,14 @@ Tracked files: **106**. Schemas: 4. Examples: 7. Invalid fixtures: 19.
 
 ## 7. Acceptance criteria status
 
+> **Snapshot, superseded.** The statuses below are as of this EP and are kept
+> unchanged as a historical record — several read `NOT RUN` because the check
+> that would establish them had not been built yet. They are **not** the
+> milestone's current state. The final per-criterion statuses are in
+> [`08-audit-verdict.md`](08-audit-verdict.md), and `evidence/m0-summary.json`
+> derives them mechanically from gate exit codes. At the delivery commit all 38
+> criteria pass.
+
 | Criterion | Status | Basis |
 |---|---|---|
 | `M0-CON-011` | **PASS** | error-envelope schema valid and versioned; 2 passing examples, 5 failing fixtures each rejected for its declared reason |

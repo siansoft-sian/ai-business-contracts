@@ -275,6 +275,14 @@ schemas: 40 across 19 cases.
 
 ## 11. Acceptance criteria status
 
+> **Snapshot, superseded.** The statuses below are as of this EP and are kept
+> unchanged as a historical record — several read `NOT RUN` because the check
+> that would establish them had not been built yet. They are **not** the
+> milestone's current state. The final per-criterion statuses are in
+> [`08-audit-verdict.md`](08-audit-verdict.md), and `evidence/m0-summary.json`
+> derives them mechanically from gate exit codes. At the delivery commit all 38
+> criteria pass.
+
 | Criterion | Status | Basis |
 |---|---|---|
 | `M0-CON-020` | **PASS** | `governance/VERSIONING.md` defines major/minor/patch by consumer effect and maps every change class the engine emits to a required bump |
