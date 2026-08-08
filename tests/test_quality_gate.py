@@ -50,6 +50,7 @@ REQUIRED_GATE_CHECKS: dict[str, str] = {
     "secret scan": "check_secrets.py",
     "dependency vulnerability audit": "pip-audit",
     "bundle/manifest validation": "verify_bundle.py",
+    "evidence integrity": "check_evidence.py",
 }
 
 #: Tool invocations that must never appear in a workflow file. If CI ran any of
@@ -267,8 +268,23 @@ def test_criteria_cover_every_acceptance_criterion(tmp_path: Path) -> None:
     )
 
 
-def test_criteria_without_a_gate_check_are_reported_not_run(tmp_path: Path) -> None:
-    """Nothing may be claimed that the gate cannot derive."""
+def test_every_criterion_is_backed_by_an_executed_check(tmp_path: Path) -> None:
+    """Nothing may be claimed that the gate cannot derive.
+
+    Until EP-06 added the Layer G evidence checker, M0-CON-043/044/045 had no
+    backing check and were reported ``not_run`` with a reason. They are now
+    derivable, so an empty ``derived_from`` anywhere would mean a criterion had
+    quietly lost its evidence rather than gained it.
+    """
+    for criterion, checks in CRITERION_EVIDENCE.items():
+        assert checks, f"{criterion} is backed by no gate check"
+
+
+def test_an_unmapped_criterion_would_be_reported_not_run(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The mechanism that keeps an unbacked criterion honest still works."""
+    monkeypatch.setitem(write_evidence_summary.CRITERION_EVIDENCE, "M0-CON-003", ())
     checks = _checks_file(tmp_path, [(name, 0) for name in ALL_CHECKS])
     output = tmp_path / "m0-summary.json"
     write_evidence_summary.main(
@@ -287,10 +303,9 @@ def test_criteria_without_a_gate_check_are_reported_not_run(tmp_path: Path) -> N
     )
     summary = json.loads(output.read_text(encoding="utf-8"))
     by_id = {entry["id"]: entry for entry in summary["criteria"]}
-    for criterion in ("M0-CON-043", "M0-CON-044", "M0-CON-045"):
-        assert by_id[criterion]["status"] == "not_run"
-        assert by_id[criterion]["derived_from"] == []
-        assert by_id[criterion].get("note"), "an underivable criterion must say why"
+    assert by_id["M0-CON-003"]["status"] == "not_run"
+    assert by_id["M0-CON-003"]["derived_from"] == []
+    assert summary["milestone_verdict"] == "not_complete"
 
 
 def test_an_empty_or_missing_check_record_is_refused(tmp_path: Path) -> None:

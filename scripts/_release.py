@@ -104,16 +104,17 @@ def commit_sha(root: Path) -> str:
     return _git(root, "rev-parse", "HEAD")
 
 
-#: Excluded from the dirty-tree check. ``evidence/`` is an *output* of the
-#: gate, never an input to a build: the gate writes the M0 summary at the end
-#: of every run, and nothing in the bundle or the manifest is derived from it.
-#: Counting it would make each run dirty the tree for the next one, so a second
-#: gate run could not build -- a false failure, and one that would push people
-#: toward --skip-release. Everything a build actually reads (contract source,
-#: catalog, governance, templates, the build scripts, pyproject) is still
-#: checked, so the manifest's claim "this bundle came from commit X" remains
-#: exactly as strong.
-DIRTY_CHECK_EXCLUSIONS: tuple[str, ...] = ("evidence",)
+#: Excluded from the dirty-tree check. ``evidence/`` and ``DELIVERY_REPORT.md``
+#: are *outputs* of the gate and of the milestone, never inputs to a build. The
+#: gate writes the M0 summary at the end of every run, and the delivery report
+#: is completed from evidence after it; nothing in the bundle or the manifest
+#: is derived from either. Counting them would make each run dirty the tree for
+#: the next one, so a second gate run could not build -- a false failure, and
+#: one that would push people toward --skip-release. Everything a build
+#: actually reads (contract source, catalog, governance, templates, the build
+#: scripts, pyproject) is still checked, so the manifest's claim "this bundle
+#: came from commit X" remains exactly as strong.
+DIRTY_CHECK_EXCLUSIONS: tuple[str, ...] = ("evidence", "DELIVERY_REPORT.md")
 
 
 def working_tree_is_dirty(root: Path) -> bool:

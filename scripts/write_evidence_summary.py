@@ -104,16 +104,24 @@ CRITERION_EVIDENCE: dict[str, tuple[str, ...]] = {
     "M0-CON-040": ("validate_matrix", "pytest"),
     "M0-CON-041": ("build_bundle", "verify_consumer_lock"),
     "M0-CON-042": ("verify_consumer_lock", "pytest"),
-    "M0-CON-043": (),
-    "M0-CON-044": (),
-    "M0-CON-045": (),
+    "M0-CON-043": ("check_evidence", "pytest"),
+    "M0-CON-044": ("check_evidence",),
+    "M0-CON-045": ("check_evidence",),
 }
 
-#: Why a criterion cannot be derived from gate execution.
+#: Standing notes on how a criterion is established, where the mechanism is
+#: not obvious from the check name alone.
 CRITERION_NOTES: dict[str, str] = {
-    "M0-CON-043": "Evidence-file audit is performed by EP-06; no gate check inspects evidence prose.",
-    "M0-CON-044": "The AUDITOR.md read-only audit is an EP-06 activity and is not a gate check.",
-    "M0-CON-045": "DELIVERY_REPORT.md is completed from evidence in EP-06.",
+    "M0-CON-044": (
+        "check_evidence verifies the recorded verdict structurally -- that a completed audit "
+        "for a reachable commit exists, returns PASS, and covers every criterion. It does not "
+        "decide that the audit passed; that is the auditor's judgement, and a gate asserting it "
+        "would be the circular evidence AUDITOR.md section 7 rejects."
+    ),
+    "M0-CON-045": (
+        "check_evidence verifies the delivery verdict is derivable: the report may not claim "
+        "PASS while any criterion it reports reads FAIL or NOT RUN."
+    ),
 }
 
 

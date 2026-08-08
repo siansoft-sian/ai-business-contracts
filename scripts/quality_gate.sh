@@ -143,7 +143,14 @@ else
     --verify-manifest-digest
 fi
 
-# --- Stage 8: the gate's own record --------------------------------------
+# --- Stage 8: evidence integrity ----------------------------------------
+# TEST_PLAN.md Layer G. Evidence is what a milestone verdict rests on and was
+# the last artifact here with no checker of its own; EP-00 finding 9 recorded
+# an evidence file silently reverting to its template. Runs after the release
+# stage so recorded artifact digests can be re-verified against real files.
+run check_evidence $PY scripts/check_evidence.py
+
+# --- Stage 9: the gate's own record --------------------------------------
 # Recorded last and always, because the summary must describe the run that
 # actually happened, including a failing one.
 printf '%s\t%s\t%s\n' "quality_gate" "$FAILED" "scripts/quality_gate.sh" >> "$RECORD"
