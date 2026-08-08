@@ -2,26 +2,26 @@
   "artifacts": [
     {
       "path": "dist/ai-business-contracts-0.1.0.tar.gz",
-      "sha256": "3a8acccaed00bec1cbc3f764f088721be25c524a0c0d6e5fa2b97fa12422bc35"
+      "sha256": "4d2609873d8d7a37f0dafaec12e2f7ca851eb8082a5969d45452cafcf533377d"
     },
     {
       "path": "dist/contract-manifest.json",
-      "sha256": "e5fdb3bafcdc0bcc4ef80cfd7d25ec9a96bab6105ba1dc8a997b8fc8488b6641"
+      "sha256": "15534a2d8e162ea449994a2429e615e27373d7edfcc72ad84f1e822b495a6c5d"
     },
     {
       "path": "dist/SHA256SUMS",
-      "sha256": "93abbe0907357191ab3968af0446e4b339f00d1440966511f3c25e46897492f8"
+      "sha256": "2846eca5595f25574dcbb37875704734b787df0f5543c8a1ffab8f6bbe823dd8"
     },
     {
       "path": "dist/compatibility-summary.json",
-      "sha256": "fe71d415beb4e107c436dfc0b7761e24ec661da62d641620bf56b49f5a7ccad4"
+      "sha256": "b521f2b0838a9da02827eb6ebfb3ffb50341a77f19304ca66a90c5f086a04ba4"
     },
     {
       "path": "dist/example-consumer-lock.yaml",
-      "sha256": "bd5f626211413448ee75ab0970078822e9f6c874973010751025a9120f2df846"
+      "sha256": "35a5dc913712c53e687a38a5e97c56e34d98ba324f0237d23621c7099a581595"
     }
   ],
-  "commit_sha": "c6807ddc6cba08c5b532be7eb83246b9ddf95c16",
+  "commit_sha": "ead4b16a0e25ca0bd8c4868f48b567ae297daae7",
   "criteria": [
     {
       "derived_from": [
@@ -325,7 +325,7 @@
     "pass": 35,
     "total": 38
   },
-  "generated_at_utc": "2026-08-08T16:14:34Z",
+  "generated_at_utc": "2026-08-08T16:20:19Z",
   "milestone": "M0",
   "milestone_verdict": "not_complete",
   "quality_gate": {
@@ -385,7 +385,7 @@
         "status": "pass"
       },
       {
-        "command": "uv run python scripts/check_compatibility.py --output dist/compatibility-summary.json",
+        "command": "uv run python scripts/check_compatibility.py --output dist/compatibility-summary.json --checked-at 2026-08-08T16:19:48Z",
         "exit_code": 0,
         "name": "check_compatibility",
         "status": "pass"
