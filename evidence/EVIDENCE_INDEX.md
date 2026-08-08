@@ -1,6 +1,6 @@
 # Evidence Index
 
-All evidence files are templates until commands are actually executed in the target repository.
+All evidence files are templates until commands are actually executed in the target repository. Integrity is now machine-checked: `scripts/check_evidence.py` (TEST_PLAN.md Layer G) rejects a report that is unpopulated, names an unreachable commit, omits commands or exit codes, or quotes an artifact digest that does not match.
 
 | File | Purpose | Current status |
 |---|---|---|
@@ -8,10 +8,10 @@ All evidence files are templates until commands are actually executed in the tar
 | `02-boundary.md` | no-implementation/no-multitenancy enforcement | COMPLETE (enforced) — EP-01 @ `f8f0d38`; M0-CON-002 closed at EP-04 |
 | `03-contract-validation.md` | schemas, examples, refs, catalog | COMPLETE (validated) — EP-02 @ `db08b46`; clean-checkout verified |
 | `04-compatibility.md` | compatible/breaking/review-required fixtures | COMPLETE (engine tested) — EP-03 @ `d65cd87`; M0-CON-023/042 closed at EP-04 |
-| `05-quality-security.md` | local gate, CI, security/dependency scans | COMPLETE (18/18 checks green) — EP-05 @ `ead4b16` |
-| `06-release-artifacts.md` | bundle/manifest/checksums/reproducibility | COMPLETE (byte-reproducible) — EP-05 @ `ead4b16`; two independent checkouts |
+| `05-quality-security.md` | local gate, CI, security/dependency scans | COMPLETE (19/19 checks green) — EP-05 @ `ead4b16`, re-run at delivery commit `e5482e0` |
+| `06-release-artifacts.md` | bundle/manifest/checksums/reproducibility | COMPLETE (byte-reproducible) — EP-05 @ `ead4b16`, two independent checkouts; rebuilt at `e5482e0` |
 | `07-cross-repo-readiness.md` | platform matrix and consumer pinning | COMPLETE (gate inputs) — EP-04 @ `7ffcdb5`; M0-CON-041 closed at EP-05 |
-| `08-audit-verdict.md` | independent M0 audit | NOT RUN |
+| `08-audit-verdict.md` | independent M0 audit | COMPLETE (verdict PASS) — EP-06 @ `2f485d6`; 38/38 criteria |
 
 **Rule:** templates are not evidence. Replace placeholders only with real outputs from the target commit.
 

@@ -170,14 +170,39 @@ itself.
 
 ## Artifacts / hashes
 
+At the delivery commit `e5482e01147156459c59a70e071086583b70e22e`. These are
+the digests `scripts/check_evidence.py` re-verifies against the real files
+whenever this report names the current HEAD.
+
 | Artifact | SHA-256 |
 |---|---|
-| `dist/ai-business-contracts-0.1.0.tar.gz` | `4d2609873d8d7a37f0dafaec12e2f7ca851eb8082a5969d45452cafcf533377d` |
-| `dist/contract-manifest.json` | `15534a2d8e162ea449994a2429e615e27373d7edfcc72ad84f1e822b495a6c5d` |
-| `dist/SHA256SUMS` | `2846eca5595f25574dcbb37875704734b787df0f5543c8a1ffab8f6bbe823dd8` |
-| `dist/compatibility-summary.json` | `b521f2b0838a9da02827eb6ebfb3ffb50341a77f19304ca66a90c5f086a04ba4` |
-| `dist/example-consumer-lock.yaml` | `35a5dc913712c53e687a38a5e97c56e34d98ba324f0237d23621c7099a581595` |
-| `evidence/m0-summary.json` | `be66b16bbb54864cd8d44bf4a382da0e5a07473f64455c58b3131c579e456b0a` |
+| `dist/ai-business-contracts-0.1.0.tar.gz` | `bf3b3d943d700d42021ebd28f92ced87e314a31380c6d3ddb8466a2e3cfbfc61` |
+| `dist/contract-manifest.json` | `9086d84d8f9bc71cfa1bcfaa7f27afafe0e629771612bd6afd91f52591db621f` |
+| `dist/SHA256SUMS` | `a433e47a01fac444a08d00401e6ad49f6249268409170746df7867f31892c08f` |
+| `dist/compatibility-summary.json` | `ee436f80158419c03b4a7b2cd8b4a054c8cf7a0702c6ed24ea3d9f3c8ef0c50c` |
+| `dist/example-consumer-lock.yaml` | `c5a445fa2cf1d9da2a1e83fa40b2b5bd4bb91062a2032a968fed771baeda85ad` |
+
+### Rebuilt at the delivery commit (EP-06)
+
+EP-06 instruction 3 requires the artifacts to be built and hashed at the
+delivery commit. Rebuilt at `e5482e01147156459c59a70e071086583b70e22e`,
+`2026-08-08T16:41:54Z` – `2026-08-08T16:42:28Z`, gate exit `0`. Their digests
+are the ones in the **Artifacts / hashes** table below, which records the
+delivery commit's artifacts; the `ead4b16` values are kept only in the
+reproducibility comparison above, so this file has exactly one table of
+currently-verifiable digests.
+
+**The bundle digest differs from the `ead4b16` build even though no bundled
+file changed.** Member mtimes derive from the commit time, so a later commit
+produces a different archive. That is correct for an artifact identified by
+commit and is deterministic per commit — but it means `bundle_sha256` should
+not be read as a content fingerprint. The per-contract `source_sha256` values
+serve that purpose, and they are unchanged between the two builds. Recorded as
+finding 6.
+
+`evidence/m0-summary.json` carries no recorded digest, deliberately: it is
+regenerated per run with the wall-clock time the run happened, so any digest
+quoted for it would be stale the moment it was written.
 
 All five `CROSS_REPO_COMPATIBILITY.md` required outputs are present. `dist/` is
 git-ignored; the artifacts are reproducible from commit
@@ -226,6 +251,15 @@ that they are inputs to this milestone rather than outputs of this repository.
 A consumer wanting the normative URN and envelope conventions must read them in
 the repository rather than in the bundle. **Non-blocking; recorded so the audit
 can disagree.**
+
+**6. The bundle digest is commit-identified, not content-identified.** Rebuilt
+at the delivery commit with no bundled file changed, `bundle_sha256` differed
+from the `ead4b16` build because member mtimes come from the commit time. This
+is deterministic per commit and correct for a release identified by commit, but
+a consumer comparing two releases' bundle digests learns that the commits
+differ, not that the contracts do. `source_sha256` per contract is the
+content-level comparison. **Non-blocking; recorded so the distinction is not
+mistaken.**
 
 **5. `dist/gate-checks.tsv` is an intermediate, not an artifact.** It is written
 by the gate and consumed by `write_evidence_summary.py`, is not in

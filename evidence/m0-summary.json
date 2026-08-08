@@ -2,26 +2,26 @@
   "artifacts": [
     {
       "path": "dist/ai-business-contracts-0.1.0.tar.gz",
-      "sha256": "4d2609873d8d7a37f0dafaec12e2f7ca851eb8082a5969d45452cafcf533377d"
+      "sha256": "bf3b3d943d700d42021ebd28f92ced87e314a31380c6d3ddb8466a2e3cfbfc61"
     },
     {
       "path": "dist/contract-manifest.json",
-      "sha256": "15534a2d8e162ea449994a2429e615e27373d7edfcc72ad84f1e822b495a6c5d"
+      "sha256": "9086d84d8f9bc71cfa1bcfaa7f27afafe0e629771612bd6afd91f52591db621f"
     },
     {
       "path": "dist/SHA256SUMS",
-      "sha256": "2846eca5595f25574dcbb37875704734b787df0f5543c8a1ffab8f6bbe823dd8"
+      "sha256": "a433e47a01fac444a08d00401e6ad49f6249268409170746df7867f31892c08f"
     },
     {
       "path": "dist/compatibility-summary.json",
-      "sha256": "b521f2b0838a9da02827eb6ebfb3ffb50341a77f19304ca66a90c5f086a04ba4"
+      "sha256": "ee436f80158419c03b4a7b2cd8b4a054c8cf7a0702c6ed24ea3d9f3c8ef0c50c"
     },
     {
       "path": "dist/example-consumer-lock.yaml",
-      "sha256": "35a5dc913712c53e687a38a5e97c56e34d98ba324f0237d23621c7099a581595"
+      "sha256": "c5a445fa2cf1d9da2a1e83fa40b2b5bd4bb91062a2032a968fed771baeda85ad"
     }
   ],
-  "commit_sha": "ead4b16a0e25ca0bd8c4868f48b567ae297daae7",
+  "commit_sha": "e5482e01147156459c59a70e071086583b70e22e",
   "criteria": [
     {
       "derived_from": [
@@ -301,33 +301,39 @@
       "status": "pass"
     },
     {
-      "derived_from": [],
+      "derived_from": [
+        "check_evidence",
+        "pytest"
+      ],
       "id": "M0-CON-043",
-      "note": "Evidence-file audit is performed by EP-06; no gate check inspects evidence prose.",
-      "status": "not_run"
+      "status": "pass"
     },
     {
-      "derived_from": [],
+      "derived_from": [
+        "check_evidence"
+      ],
       "id": "M0-CON-044",
-      "note": "The AUDITOR.md read-only audit is an EP-06 activity and is not a gate check.",
-      "status": "not_run"
+      "note": "check_evidence verifies the recorded verdict structurally -- that a completed audit for a reachable commit exists, returns PASS, and covers every criterion. It does not decide that the audit passed; that is the auditor's judgement, and a gate asserting it would be the circular evidence AUDITOR.md section 7 rejects.",
+      "status": "pass"
     },
     {
-      "derived_from": [],
+      "derived_from": [
+        "check_evidence"
+      ],
       "id": "M0-CON-045",
-      "note": "DELIVERY_REPORT.md is completed from evidence in EP-06.",
-      "status": "not_run"
+      "note": "check_evidence verifies the delivery verdict is derivable: the report may not claim PASS while any criterion it reports reads FAIL or NOT RUN.",
+      "status": "pass"
     }
   ],
   "criteria_summary": {
     "fail": 0,
-    "not_run": 3,
-    "pass": 35,
+    "not_run": 0,
+    "pass": 38,
     "total": 38
   },
-  "generated_at_utc": "2026-08-08T16:20:19Z",
+  "generated_at_utc": "2026-08-08T16:42:28Z",
   "milestone": "M0",
-  "milestone_verdict": "not_complete",
+  "milestone_verdict": "pass",
   "quality_gate": {
     "checks": [
       {
@@ -385,7 +391,7 @@
         "status": "pass"
       },
       {
-        "command": "uv run python scripts/check_compatibility.py --output dist/compatibility-summary.json --checked-at 2026-08-08T16:19:48Z",
+        "command": "uv run python scripts/check_compatibility.py --output dist/compatibility-summary.json --checked-at 2026-08-08T16:38:19Z",
         "exit_code": 0,
         "name": "check_compatibility",
         "status": "pass"
@@ -430,6 +436,12 @@
         "command": "uv run python scripts/verify_consumer_lock.py --lock dist/example-consumer-lock.yaml --manifest dist/contract-manifest.json --verify-manifest-digest",
         "exit_code": 0,
         "name": "verify_consumer_lock",
+        "status": "pass"
+      },
+      {
+        "command": "uv run python scripts/check_evidence.py",
+        "exit_code": 0,
+        "name": "check_evidence",
         "status": "pass"
       },
       {
